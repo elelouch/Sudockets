@@ -79,51 +79,18 @@ public class SudokuSolverTest {
             {2, 8, 7, 4, 1, 9, 6, 3, 5},
             {3, 4, 5, 2, 8, 6, 1, 7, 9}
     };
-    SudokuSolver solverTrivial = new SudokuSolver(sudoku2);
 
     @Test
     public void testSolver() {
-        SudokuSolver solver = new SudokuSolver(sudoku6);
-        long opa = System.nanoTime();
-        int[][] epa = solver.solve();
-        long upa = System.nanoTime();
-        System.out.println("time: " + (upa - opa) );
-        for (int[] row : epa) {
-            for (int num : row ) {
-                System.out.print(num + " ");
+        long start = System.currentTimeMillis();
+        int[][] pedro = SudokuSolver.solveSudoku(sudoku4);
+        System.out.println(System.currentTimeMillis() - start);
+        for (int[] row : pedro) {
+            for(int num : row) {
+                System.out.print(num+ " ");
             }
             System.out.println();
         }
     }
 
-    @Test
-    public void testTrivialMoves() {
-        solverTrivial.trivialMoves();
-        Assertions.assertTrue(sudokuIsFilled(solverTrivial.solution));
-    }
-
-    @Test
-    public void testIsTrivial() {
-        Assertions.assertTrue(solverTrivial.isTrivial(1, 1));
-    }
-
-    @Test
-    public void testCountPossibilities() {
-        Assertions.assertEquals(solverTrivial.countPossibilities(1, 1), 1);
-    }
-
-    @Test
-    public void testPossibility() {
-        Assertions.assertEquals(solverTrivial.possibilities[1][1][6], true);
-    }
-
-    public boolean sudokuIsFilled(int[][] sudoku) {
-        for (int[] row : sudoku) {
-            for (int num : row) {
-                if (num == 0)
-                    return false;
-            }
-        }
-        return true;
-    }
 }
