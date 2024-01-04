@@ -1,15 +1,17 @@
-package sudoku.solver;
+package sudoku;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class SudokuSolver {
-    private static final int[] BIT_REPRE = {0, 1, 2, 4, 8, 16, 32, 64, 128, 256};
-    private static final int SIZE = 9;
-    private static final int THIRD = 3;
-    private static final int EMPTY = 0;
-    private static final int SUDOKU_FILLED = 81;
+    protected static final int[] BIT_REPRE = {0, 1, 2, 4, 8, 16, 32, 64, 128, 256};
+    protected static final int SIZE = 9;
+    protected static final int THIRD = 3;
+    protected static final int EMPTY = 0;
+    protected static final int SUDOKU_FILLED = 81;
 
-    public static int countBits(int n) {
+    private static int countBits(int n) {
         int count = 0;
         while (n > 0) {
             count += n & 1;
@@ -18,7 +20,7 @@ public class SudokuSolver {
         return count;
     }
 
-    public static int[][] deepCopy(int[][] arr) {
+    private static int[][] deepCopy(int[][] arr) {
         return new int[][]{
                 Arrays.copyOf(arr[0], SIZE),
                 Arrays.copyOf(arr[1], SIZE),
@@ -32,7 +34,7 @@ public class SudokuSolver {
         };
     }
 
-    public static void placeNumber(int[][] sudoku, int[][] allowed, int x, int y, int val) {
+    protected static void placeNumber(int[][] sudoku, int[][] allowed, int x, int y, int val) {
         int mask = ~BIT_REPRE[val];
         sudoku[x][y] = val;
         allowed[x][y] = 0;
@@ -47,7 +49,7 @@ public class SudokuSolver {
         }
     }
 
-    public static int[][] solveSudoku(int[][] sudoku) {
+    public static final List<int[][]> solveSudoku(int[][] sudoku) {
         int[][] gameCopy = deepCopy(sudoku);
         int[][] allowedCopy = new int[SIZE][SIZE];
 
@@ -64,13 +66,11 @@ public class SudokuSolver {
                 }
             }
         }
-        if (solveBoard(gameCopy, allowedCopy, count) == SUDOKU_FILLED ){
-            return gameCopy;
-        }
-        return null;
+
+        return solveBoard(gameCopy,allowedCopy,count);
     }
 
-    public static int trivialMoves(int sudoku[][], int[][] allowed) {
+    private static int trivialMoves(int sudoku[][], int[][] allowed) {
         int count = 0;
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
@@ -89,7 +89,7 @@ public class SudokuSolver {
         return count;
     }
 
-    public static int rowAndColumnSingles(int[][] sudoku, int[][] allowed) {
+    private static int rowAndColumnSingles(int[][] sudoku, int[][] allowed) {
         int count = 0;
         for (int val = 1; val <= SIZE; val++) {
 
@@ -133,7 +133,7 @@ public class SudokuSolver {
         return count;
     }
 
-    public static int boxSingles(int[][] sudoku, int[][] allowed) {
+    private static int boxSingles(int[][] sudoku, int[][] allowed) {
         int count = 0;
         for (int i = 0; i < SIZE; i += 3) {
             for (int j = 0; j < SIZE; j += 3) {
@@ -149,7 +149,7 @@ public class SudokuSolver {
         return count;
     }
 
-    public static int[] single(int[][] sudoku, int[][] allowed, int x, int y, int val) {
+    private static int[] single(int[][] sudoku, int[][] allowed, int x, int y, int val) {
         int[] pair = new int[]{-1, -1};
         int bitval = BIT_REPRE[val];
         for (int i = 0; i < THIRD; i++) {
@@ -168,7 +168,8 @@ public class SudokuSolver {
         return pair;
     }
 
-    public static int[][] bruteForceBoard(int[][] sudoku, int[][] allowed, int placed) {
+    private static List<int[][]> bruteForceBoard(int[][] sudoku, int[][] allowed, int placed) {
+        List<int[][]> solutions = new ArrayList<>();
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
                 if (sudoku[i][j] == EMPTY) {
@@ -178,40 +179,41 @@ public class SudokuSolver {
                             int[][] gameCopy = deepCopy(sudoku);
                             int[][] allowedCopy = deepCopy(allowed);
                             placeNumber(gameCopy, allowedCopy, i, j, val);
-                            int placedNumbers = solveBoard(gameCopy, allowedCopy, placed + 1);
-                            if (placedNumbers == SUDOKU_FILLED) {
-                                return gameCopy;
+                            solutions.addAll(solveBoard(gameCopy, allowedCopy, placed + 1));
+                            if (solutions.size() >= 2) {
+                                return solutions;
                             }
                         }
                     }
-                    return null;
+                    return solutions;
                 }
             }
         }
-        return null;
+        return solutions;
     }
 
-    public static int solveBoard(int[][] sudoku, int[][] allowed, int placed) {
+    private static List<int[][]> solveBoard(int[][] sudoku, int[][] allowed, int placed) {
+        List<int[][]> solutions = new ArrayList<>();
+        placed += fillEasyValues(sudoku, allowed);
+
+        if (placed < SUDOKU_FILLED) {
+            solutions.addAll(bruteForceBoard(sudoku, allowed, placed));
+        }
+
+        if (placed == SUDOKU_FILLED) {
+            solutions.add(sudoku);
+        }
+        return solutions;
+    }
+
+    private static int fillEasyValues(int[][] sudoku, int[][] allowed) {
         int before = -1;
+        int placed = 0;
         while ((placed - before) > 0) {
             before = placed;
             placed += trivialMoves(sudoku, allowed);
             placed += boxSingles(sudoku, allowed);
             placed += rowAndColumnSingles(sudoku, allowed);
-        }
-        if (placed < SUDOKU_FILLED) {
-            int solution[][] = bruteForceBoard(sudoku, allowed, placed);
-            if (solution != null) {
-                placed = 0;
-                for (int i = 0; i < SIZE; i++) {
-                    for (int j = 0; j < SIZE; j++) {
-                        if(solution[i][j] != EMPTY) {
-                            sudoku[i][j] = solution[i][j];
-                            placed++;
-                        }
-                    }
-                }
-            }
         }
         return placed;
     }

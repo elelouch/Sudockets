@@ -2,34 +2,51 @@ package sudoku.solver;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import sudoku.SudokuGenerator;
+import sudoku.SudokuSolver;
 
+import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 
 public class SudokuSolverTest {
 
-    int[][] sudoku3 = {
-            {0, 1, 4, 0, 7, 0, 0, 9, 0},
-            {0, 0, 8, 0, 0, 0, 0, 6, 1},
-            {0, 5, 0, 3, 0, 2, 0, 0, 0},
-            {0, 0, 6, 0, 9, 4, 0, 0, 0},
-            {0, 0, 0, 8, 0, 6, 0, 0, 7},
-            {0, 0, 0, 1, 3, 0, 6, 0, 0},
-            {0, 0, 0, 2, 0, 7, 0, 3, 0},
-            {5, 7, 0, 0, 0, 0, 9, 0, 0},
-            {0, 6, 0, 0, 5, 0, 7, 8, 0}
+    int[][] sudoku1 = {
+        {0, 1, 4, 0, 7, 0, 0, 9, 0},
+        {0, 0, 8, 0, 0, 0, 0, 6, 1},
+        {0, 5, 0, 3, 0, 2, 0, 0, 0},
+        {0, 0, 6, 0, 9, 4, 0, 0, 0},
+        {0, 0, 0, 8, 0, 6, 0, 0, 7},
+        {0, 0, 0, 1, 3, 0, 6, 0, 0},
+        {0, 0, 0, 2, 0, 7, 0, 3, 0},
+        {5, 7, 0, 0, 0, 0, 9, 0, 0},
+        {0, 6, 0, 0, 5, 0, 7, 8, 0}
+    };
+    
+    int[][] sudoku2 = {
+        {0, 0, 0, 0, 0, 0, 0, 1, 3},
+        {0, 4, 0, 0, 0, 0, 0, 8, 0},
+        {2, 0, 0, 0, 6, 0, 0, 0, 0},
+        {9, 0, 6, 0, 0, 0, 4, 0, 0},
+        {0, 0, 0, 8, 0, 0, 0, 0, 0},
+        {0, 0, 0, 3, 0, 0, 0, 0, 0},
+        {0, 3, 0, 1, 0, 0, 5, 0, 0},
+        {0, 0, 0, 0, 4, 0, 7, 0, 6},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0}
     };
 
-    int[][] sudoku0 = {
-            {5, 0, 3, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 7, 6, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 8, 0, 0},
-            {0, 0, 8, 3, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 1, 6},
-            {0, 0, 0, 0, 0, 0, 0, 7, 0},
-            {1, 4, 0, 5, 0, 0, 2, 0, 0},
-            {0, 6, 0, 2, 0, 0, 0, 0, 0},
-            {7, 0, 0, 0, 0, 0, 0, 0, 0}
+    int[][] sudoku3 = {
+        {5, 0, 3, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 7, 6, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 8, 0, 0},
+        {0, 0, 8, 3, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 1, 6},
+        {0, 0, 0, 0, 0, 0, 0, 7, 0},
+        {1, 4, 0, 5, 0, 0, 2, 0, 0},
+        {0, 6, 0, 2, 0, 0, 0, 0, 0},
+        {7, 0, 0, 0, 0, 0, 0, 0, 0}
     };
 
     int[][] sudoku4 = {
@@ -37,14 +54,14 @@ public class SudokuSolverTest {
             {0, 0, 0, 0, 0, 0, 0, 0, 0},
             {0, 0, 0, 0, 0, 0, 0, 0, 0},
             {0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 8, 0, 0, 0, 0},
             {0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 9, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0},
             {0, 0, 0, 0, 0, 0, 0, 0, 0},
             {0, 0, 0, 0, 0, 0, 0, 0, 0}
     };
 
-    int[][] sudoku6 = {
+    int[][] sudoku5 = {
             {0, 0, 0, 0, 0, 0, 4, 0, 8},
             {0, 0, 1, 0, 8, 0, 0, 0, 0},
             {0, 0, 0, 6, 0, 0, 9, 7, 0},
@@ -56,7 +73,7 @@ public class SudokuSolverTest {
             {0, 6, 2, 8, 9, 0, 0, 0, 0}
     };
 
-    int[][] sudoku1 = {
+    int[][] sudoku6 = {
             {5, 3, 0, 0, 7, 0, 0, 0, 0},
             {6, 0, 0, 1, 9, 5, 0, 0, 0},
             {0, 9, 8, 0, 0, 0, 0, 6, 0},
@@ -68,7 +85,7 @@ public class SudokuSolverTest {
             {0, 0, 0, 0, 8, 0, 0, 7, 9}
     };
 
-    int[][] sudoku2 = {
+    int[][] sudoku7 = {
             {5, 3, 4, 6, 7, 8, 9, 1, 2},
             {6, 0, 2, 1, 9, 5, 3, 4, 8},
             {1, 9, 8, 3, 4, 2, 5, 6, 7},
@@ -82,15 +99,7 @@ public class SudokuSolverTest {
 
     @Test
     public void testSolver() {
-        long start = System.currentTimeMillis();
-        int[][] pedro = SudokuSolver.solveSudoku(sudoku4);
-        System.out.println(System.currentTimeMillis() - start);
-        for (int[] row : pedro) {
-            for(int num : row) {
-                System.out.print(num+ " ");
-            }
-            System.out.println();
-        }
+        List<int[][]> pedro = SudokuSolver.solveSudoku(sudoku4);
+        System.out.println(pedro.size());
     }
-
 }
