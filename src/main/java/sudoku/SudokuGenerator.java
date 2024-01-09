@@ -53,7 +53,7 @@ public class SudokuGenerator {
         int[][] newSudoku = generateSudokuAndShuffleCells();
         int head = 0;
         while(head < CELLS_AMOUNT) {
-            int[] cell = cellsAvailable[head];
+            int[] cell = cellsAvailable[head++];
             int x = cell[0];
             int y = cell[1];
             int prevValue = newSudoku[x][y];
@@ -69,6 +69,6 @@ public class SudokuGenerator {
         int[] cell = cellsAvailable[cellPos];
         cellsAvailable[cellPos] = cellsAvailable[cellsAvailableSize - 1];
         cellsAvailable[cellsAvailableSize - 1] = cell;
-        cellsAvailableSize -= 1;
+        cellsAvailableSize--;
     }
 }

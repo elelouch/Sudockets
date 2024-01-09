@@ -92,7 +92,6 @@ public class SudokuSolver {
     private static int rowAndColumnSingles(int[][] sudoku, int[][] allowed) {
         int count = 0;
         for (int val = 1; val <= SIZE; val++) {
-
             int bitVal = BIT_REPRE[val];
             for (int i = 0; i < SIZE; i++) {
                 int col = -1;

@@ -12,6 +12,12 @@ public class SudokuGeneratorTest {
     @Test
     public void labanda(){
         SudokuGenerator morocha = new SudokuGenerator();
-        int[][] sudoku = morocha.generateSudokuAndShuffleCells();
+        int[][] sudoku = morocha.generateSolvableSudoku();
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 9; j++) {
+                System.out.print(sudoku[i][j] + " ");
+            }
+            System.out.println();
+        }
     }
 }
