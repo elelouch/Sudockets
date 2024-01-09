@@ -3,10 +3,13 @@ package game.ui;
 import sudoku.SudokuSolver;
 
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.LineBorder;
 import java.awt.*;
 
 public class SudokuBoard extends JPanel {
     private static final int SIZE = 9;
+    private static final int MAX_COLORED_CELLS = 21;
     private static final int THIRD = 3;
     private static final int FIRST = 0;
     private static final int MAX_TRIES = 3;
@@ -15,10 +18,12 @@ public class SudokuBoard extends JPanel {
     private static final int BUTTONS_GAP = 10;
     private static final String nullCellMessage = "Must select a cell before placing a number";
 
+    SudokuButton[] borderedCells;
     SudokuButton selectedCell;
     JPanel[][] boxes;
     SudokuButton[][] cellsButtons;
     int[][] solution;
+    Border border;
     int tries;
     int settedCells;
 
@@ -27,10 +32,13 @@ public class SudokuBoard extends JPanel {
         settedCells = 0;
         solution = SudokuSolver.solveSudoku(sudoku).get(FIRST);
         tries = MAX_TRIES;
-        setLayout(generateSquaredGappedLayout(5, 3));
         boxes = new JPanel[THIRD][THIRD];
-        fillAndAddBoxes();
         cellsButtons = new SudokuButton[SIZE][SIZE];
+        borderedCells = new SudokuButton[MAX_COLORED_CELLS];
+        border = LineBorder.createBlackLineBorder();
+
+        setLayout(generateSquaredGappedLayout(0, 3));
+        fillAndAddBoxes();
         fillCellsButtons(sudoku);
         setVisible(true);
     }
@@ -47,9 +55,46 @@ public class SudokuBoard extends JPanel {
             boxes[i] = new JPanel[THIRD];
             for (int j = 0; j < THIRD; j++) {
                 boxes[i][j] = new JPanel();
-                boxes[i][j].setLayout(generateSquaredGappedLayout(BUTTONS_GAP, 3));
-                boxes[i][j].setBorder(BorderFactory.createLineBorder(Color.black, BORDER_PIXELS));
+                boxes[i][j].setLayout(generateSquaredGappedLayout(0, 3));
+                boxes[i][j].setBorder(border);
                 add(boxes[i][j]);
+            }
+        }
+    }
+
+    private void unsetHelperBorders() {
+        for (int i = 0; i < borderedCells.length ; i++) {
+            if(borderedCells[i] != null) {
+                borderedCells[i].setBorder(border);
+            }
+        }
+    }
+
+    private void setHelperBorders() {
+        int i = selectedCell.getRow();
+        int j = selectedCell.getCol();
+        int boxi = i / THIRD;
+        int boxj = j / THIRD;
+        JPanel box = boxes[boxi][boxj];
+        Component[] cells = box.getComponents();
+        int count = 0;
+
+        for (int k = 0; k < cells.length; k++) {
+            SudokuButton cell = (SudokuButton) cells[k];
+            borderedCells[count++] = cell;
+        }
+
+        for (int k = 0; k < SIZE ; k++) {
+            SudokuButton aux;
+            int lineNumber = k / THIRD;
+            if(lineNumber != boxi) {
+                aux = cellsButtons[i][k];
+                borderedCells[count++] = aux;
+            }
+
+            if(lineNumber != boxj) {
+                aux = cellsButtons[k][j];
+                borderedCells[count++] = aux;
             }
         }
     }
@@ -59,11 +104,16 @@ public class SudokuBoard extends JPanel {
             cellsButtons[i] = new SudokuButton[SIZE];
             for (int j = 0; j < SIZE; j++) {
                 SudokuButton newButton = new SudokuButton(i, j);
+                newButton.setOpaque(true);
+                newButton.setBackground(Color.white);
+                newButton.setBorder(border);
                 cellsButtons[i][j] = newButton;
                 boxes[i / THIRD][j / THIRD].add(newButton);
 
                 newButton.addActionListener(e -> {
                     selectedCell = (SudokuButton) e.getSource();
+                    unsetHelperBorders();
+                    setHelperBorders();
                 });
 
                 if (sudokuBoard[i][j] != EMPTY) {
@@ -90,14 +140,14 @@ public class SudokuBoard extends JPanel {
             int i = selectedCell.getRow();
             int j = selectedCell.getCol();
 
-            if(number != solution[i][j]) {
-                tries--;
-            } else {
+            if(number == solution[i][j]) {
                 selectedCell.setUnmodifiable();
+            } else {
+                tries--;
             }
 
-            selectedCell.setText(String.valueOf(number));
             selectedCell.removeAll();
+            selectedCell.setText(String.valueOf(number));
         }
     }
 
@@ -145,5 +195,4 @@ public class SudokuBoard extends JPanel {
             }
         }
     }
-
 }
