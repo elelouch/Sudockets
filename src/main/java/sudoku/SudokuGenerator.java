@@ -5,21 +5,21 @@ import java.util.*;
 public class SudokuGenerator {
     private static final int PAIR = 2;
     private static final int SIZE = SudokuSolver.SIZE;
-    private int CELLS_AMOUNT = 81;
-    private int[][] cellsAvailable;
-    private int cellsAvailableSize = CELLS_AMOUNT;
+    private static final int CELLS_AMOUNT = 81;
+    private static int[][] cellsAvailable;
+    private static int cellsAvailableSize = CELLS_AMOUNT;
 
-    public SudokuGenerator() {
+    static {
         cellsAvailable = new int[CELLS_AMOUNT][PAIR];
-        for (int i = 0; i < 9; i++) {
-            for (int j = 0; j < 9; j++) {
-                cellsAvailable[i * 9 + j][0] = i;
-                cellsAvailable[i * 9 + j][1] = j;
+        for (int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) {
+                cellsAvailable[i * SIZE + j][0] = i;
+                cellsAvailable[i * SIZE + j][1] = j;
             }
         }
     }
 
-    public int[][] generateSudokuAndShuffleCells() {
+    private static int[][] generateSudokuAndShuffleCells() {
         int[][] allowed = new int[SIZE][SIZE];
         int[][] newSudoku = new int[SIZE][SIZE];
         for (int i = 0; i < SIZE ; i++) {
@@ -49,7 +49,7 @@ public class SudokuGenerator {
         return newSudoku;
     }
 
-    public int[][] generateSolvableSudoku(){
+    public static int[][] generateUniqueSudoku(){
         int[][] newSudoku = generateSudokuAndShuffleCells();
         int head = 0;
         while(head < CELLS_AMOUNT) {
@@ -65,7 +65,7 @@ public class SudokuGenerator {
         return newSudoku;
     }
 
-    private void removeCell(int cellPos) {
+    private static void removeCell(int cellPos) {
         int[] cell = cellsAvailable[cellPos];
         cellsAvailable[cellPos] = cellsAvailable[cellsAvailableSize - 1];
         cellsAvailable[cellsAvailableSize - 1] = cell;

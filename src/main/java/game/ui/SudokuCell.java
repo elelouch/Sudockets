@@ -3,11 +3,11 @@ package game.ui;
 import javax.swing.*;
 import java.awt.*;
 
-public class SudokuButton extends JButton {
+public class SudokuCell extends JButton {
     private int row;
     private int col;
     private boolean modifiable;
-    public SudokuButton(int newRow, int newCol) {
+    public SudokuCell(int newRow, int newCol) {
         row = newRow;
         col = newCol;
         modifiable = true;

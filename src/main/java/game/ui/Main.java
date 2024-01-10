@@ -17,9 +17,9 @@ public class Main extends JFrame {
                 {0, 0, 0, 4, 1, 9, 0, 0, 5},
                 {0, 0, 0, 0, 8, 0, 0, 7, 9}
         };
-        SudokuBoard game = new SudokuBoard(sudoku6);
+        SudokuBoard game = new SudokuBoard();
         pane.add(game);
-        pane.add(new Keypad(game), BorderLayout.SOUTH);
+        pane.add(new SudokuKeypad(game), BorderLayout.SOUTH);
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800,600);
