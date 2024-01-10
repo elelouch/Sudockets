@@ -1,2 +1,2 @@
 # Sudockets
-# Sudockets
+Multiplayer Sudoku game.
