@@ -9,6 +9,7 @@ import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.util.ArrayDeque;
+import java.util.Arrays;
 
 public class SudokuBoard extends JPanel {
     private static final int SIZE = 9;
@@ -18,35 +19,29 @@ public class SudokuBoard extends JPanel {
     private static final int MAX_TRIES = 3;
     private static final int EMPTY = 0;
     private static final int BORDER_PIXELS = 1;
+    private static final Border DEFAULT_BORDER = LineBorder.createBlackLineBorder();
+    private static final Border THICKER_BORDER = BorderFactory.createLineBorder(Color.black, BORDER_PIXELS + 2);
     private static final String nullCellMessage = "Must select a cell before placing a number";
 
-    private ArrayDeque<SudokuCell> coloredCells;
+    private final ArrayDeque<SudokuCell> coloredCells;
     private SudokuCell selectedCell;
-    private JPanel[][] boxes;
-    private SudokuCell[][] cells;
+    private final JPanel[][] boxes;
+    private final SudokuCell[][] cells;
     private int[][] boardSolution;
     private int[][] board;
-    private Border defaultBorder;
-    private Border thickerBorder;
     private int tries;
     private int settedCells;
     private ConnectionManager connectionManager;
 
     public SudokuBoard() {
-        board = SudokuGenerator.generateUniqueSudoku();
-        selectedCell = null;
-        settedCells = 0;
-        boardSolution = SudokuSolver.solveSudoku(board).get(FIRST);
         tries = MAX_TRIES;
         boxes = new JPanel[BOX_SIDE][BOX_SIDE];
         cells = new SudokuCell[SIZE][SIZE];
-        defaultBorder = LineBorder.createBlackLineBorder();
-        thickerBorder = BorderFactory.createLineBorder(Color.black, BORDER_PIXELS + 2);
         coloredCells = new ArrayDeque<>(MAX_COLORED_CELLS);
 
         setLayout(generateGridSquaredLayout(BOX_SIDE));
         setBoxes();
-        fillSudokuCells(board);
+        startNewBoard(SudokuGenerator.generateUniqueSudoku());
         setVisible(true);
     }
 
@@ -54,13 +49,20 @@ public class SudokuBoard extends JPanel {
         return new GridLayout(side, side);
     }
 
+    public int[][] getBoardCopy() {
+        int[][] boardCopy = new int[SIZE][SIZE];
+        for (int i = 0; i < SIZE; i++) {
+            boardCopy[i] = Arrays.copyOf(board[i], board[i].length);
+        }
+        return boardCopy;
+    }
     private void setBoxes() {
         for (int i = 0; i < BOX_SIDE; i++) {
             boxes[i] = new JPanel[BOX_SIDE];
             for (int j = 0; j < BOX_SIDE; j++) {
                 boxes[i][j] = new JPanel();
                 boxes[i][j].setLayout(generateGridSquaredLayout(BOX_SIDE));
-                boxes[i][j].setBorder(thickerBorder);
+                boxes[i][j].setBorder(THICKER_BORDER);
                 add(boxes[i][j]);
             }
         }
@@ -99,28 +101,32 @@ public class SudokuBoard extends JPanel {
         SudokuCell newCell = new SudokuCell(i, j);
         newCell.setOpaque(true);
         newCell.setBackground(Color.white);
-        newCell.setBorder(defaultBorder);
+        newCell.setBorder(DEFAULT_BORDER);
         newCell.addActionListener(e -> {
             if (selectedCell != null) {
-                selectedCell.setBorder(defaultBorder);
+                selectedCell.setBorder(DEFAULT_BORDER);
             }
             selectedCell = (SudokuCell) e.getSource();
-            selectedCell.setBorder(thickerBorder);
+            selectedCell.setBorder(THICKER_BORDER);
             unColorCells();
             colorBasedOnSelectedCell();
         });
         return newCell;
     }
 
-    private void fillSudokuCells(int[][] sudokuBoard) {
+    public void startNewBoard(int[][] newBoard) {
+        board = newBoard;
+        boardSolution = SudokuSolver.solveSudoku(newBoard).get(FIRST);
+        selectedCell = null;
+        settedCells = 0;
         for (int i = 0; i < SIZE; i++) {
             cells[i] = new SudokuCell[SIZE];
             for (int j = 0; j < SIZE; j++) {
                 SudokuCell newCell = generateNewCell(i, j);
                 cells[i][j] = newCell;
                 boxes[i / BOX_SIDE][j / BOX_SIDE].add(newCell);
-                if (sudokuBoard[i][j] != EMPTY) {
-                    newCell.setText(sudokuBoard[i][j] + "");
+                if (board[i][j] != EMPTY) {
+                    newCell.setText(board[i][j] + "");
                     newCell.setUnmodifiable();
                 }
             }

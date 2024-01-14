@@ -14,10 +14,20 @@ public class ConnectionManager {
     private UpdateListener updateListener;
     private OutputStream outputStream;
 
-    public ConnectionManager (SudokuBoard sudokuGame) {
+    public ConnectionManager(SudokuBoard sudokuGame) {
         game = sudokuGame;
         updateListener = new UpdateListener(sudokuGame);
         sudokuGame.setConnectionManager(this);
+    }
+
+    public byte[] flatBoard(int[][] sudoku) {
+        byte[] buffer = new byte[81];
+        for (int i = 0; i < sudoku.length; i++) {
+            for (int j = 0; j < sudoku[i].length; j++) {
+                buffer[i * sudoku.length + j] = (byte) sudoku[i][j];
+            }
+        }
+        return buffer;
     }
 
     public void startAsServer() {
@@ -26,10 +36,13 @@ public class ConnectionManager {
              InputStream in = client.getInputStream();
              OutputStream out = client.getOutputStream()
         ) {
+            outputStream = out;
             updateListener.setSharingStream(in);
+
             Thread updateListenerThread = new Thread(updateListener);
             updateListenerThread.start();
-            outputStream = out;
+            int[][] sudokuBoard = game.getBoardCopy();
+            outputStream.write(flatBoard(sudokuBoard));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -40,10 +53,10 @@ public class ConnectionManager {
              InputStream in = client.getInputStream();
              OutputStream out = client.getOutputStream()
         ) {
+            outputStream = out;
             updateListener.setSharingStream(in);
             Thread updateListenerThread = new Thread(updateListener);
             updateListenerThread.start();
-            outputStream = out;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -52,8 +65,8 @@ public class ConnectionManager {
 
     public void sendUpdate(int i, int j, int number) {
         if (outputStream != null) {
-            try{
-                byte[] buffer = new byte[]{(byte)i, (byte)j, (byte)number};
+            try {
+                byte[] buffer = new byte[]{(byte) i, (byte) j, (byte) number};
                 outputStream.write(buffer);
             } catch (IOException e) {
                 e.printStackTrace();

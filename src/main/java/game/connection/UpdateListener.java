@@ -19,8 +19,22 @@ public class UpdateListener implements Runnable {
         sharingStream = in;
     }
 
+    public int[][] unflatBoard(byte[] buffer) {
+        int[][] sudoku = new int[9][9];
+        for (int i = 0; i < sudoku.length; i++) {
+            sudoku[i] = new int[9];
+            for (int j = 0; j < sudoku[i].length; j++) {
+                sudoku[i][j] = (int)buffer[i * sudoku.length + j];
+            }
+        }
+        return sudoku;
+    }
+
     @Override
     public void run() {
+        byte[] flatGame = new byte[81];
+        int[][] sudoku = unflatBoard(flatGame);
+        boardGame.startNewBoard(sudoku);
         while(true) {
             try {
                 byte[] buffer = new byte[3];
