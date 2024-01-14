@@ -13,6 +13,8 @@ public class ConnectionManager {
     private SudokuBoard game;
     private UpdateListener updateListener;
     private OutputStream outputStream;
+    private ServerSocket server;
+    private Socket client;
 
     public ConnectionManager(SudokuBoard sudokuGame) {
         game = sudokuGame;
@@ -20,7 +22,7 @@ public class ConnectionManager {
         sudokuGame.setConnectionManager(this);
     }
 
-    public byte[] flatBoard(int[][] sudoku) {
+    public static byte[] flatBoard(int[][] sudoku) {
         byte[] buffer = new byte[81];
         for (int i = 0; i < sudoku.length; i++) {
             for (int j = 0; j < sudoku[i].length; j++) {
@@ -30,17 +32,29 @@ public class ConnectionManager {
         return buffer;
     }
 
+    public static int[][] unflatBoard(byte[] buffer) {
+        int[][] sudoku = new int[9][9];
+        for (int i = 0; i < sudoku.length; i++) {
+            sudoku[i] = new int[9];
+            for (int j = 0; j < sudoku[i].length; j++) {
+                sudoku[i][j] = (int) buffer[i * sudoku.length + j];
+            }
+        }
+        return sudoku;
+    }
+
     public void startAsServer() {
-        try (ServerSocket server = new ServerSocket(PORT);
-             Socket client = server.accept();
-             InputStream in = client.getInputStream();
-             OutputStream out = client.getOutputStream()
-        ) {
+        try {
+            server = new ServerSocket(PORT);
+            client = server.accept();
+            InputStream in = client.getInputStream();
+            OutputStream out = client.getOutputStream();
+
             outputStream = out;
             updateListener.setSharingStream(in);
-
             Thread updateListenerThread = new Thread(updateListener);
             updateListenerThread.start();
+
             int[][] sudokuBoard = game.getBoardCopy();
             outputStream.write(flatBoard(sudokuBoard));
         } catch (IOException e) {
@@ -49,11 +63,16 @@ public class ConnectionManager {
     }
 
     public void startAsClient(String ip) {
-        try (Socket client = new Socket(ip, PORT);
-             InputStream in = client.getInputStream();
-             OutputStream out = client.getOutputStream()
-        ) {
+        try {
+            client = new Socket(ip, PORT);
+            InputStream in = client.getInputStream();
+            OutputStream out = client.getOutputStream();
+            // se esta saliendo de la rutina
             outputStream = out;
+            byte[] flatGame = new byte[81];
+            in.read(flatGame);
+            game.startNewBoard(unflatBoard(flatGame));
+
             updateListener.setSharingStream(in);
             Thread updateListenerThread = new Thread(updateListener);
             updateListenerThread.start();
@@ -64,13 +83,11 @@ public class ConnectionManager {
     }
 
     public void sendUpdate(int i, int j, int number) {
-        if (outputStream != null) {
-            try {
-                byte[] buffer = new byte[]{(byte) i, (byte) j, (byte) number};
-                outputStream.write(buffer);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        try {
+            byte[] buffer = new byte[]{(byte) i, (byte) j, (byte) number};
+            outputStream.write(buffer);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

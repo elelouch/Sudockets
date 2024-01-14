@@ -40,7 +40,6 @@ public class SudokuBoard extends JPanel {
         coloredCells = new ArrayDeque<>(MAX_COLORED_CELLS);
 
         setLayout(generateGridSquaredLayout(BOX_SIDE));
-        setBoxes();
         startNewBoard(SudokuGenerator.generateUniqueSudoku());
         setVisible(true);
     }
@@ -57,6 +56,7 @@ public class SudokuBoard extends JPanel {
         return boardCopy;
     }
     private void setBoxes() {
+        removeAll();
         for (int i = 0; i < BOX_SIDE; i++) {
             boxes[i] = new JPanel[BOX_SIDE];
             for (int j = 0; j < BOX_SIDE; j++) {
@@ -115,6 +115,7 @@ public class SudokuBoard extends JPanel {
     }
 
     public void startNewBoard(int[][] newBoard) {
+        setBoxes();
         board = newBoard;
         boardSolution = SudokuSolver.solveSudoku(newBoard).get(FIRST);
         selectedCell = null;
