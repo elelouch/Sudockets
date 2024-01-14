@@ -9,6 +9,7 @@ public class Main extends JFrame {
         SudokuBoard game = new SudokuBoard();
         pane.add(game);
         pane.add(new SudokuKeypad(game), BorderLayout.SOUTH);
+        pane.add(new MainKeypad(game), BorderLayout.EAST);
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800,600);
@@ -17,4 +18,5 @@ public class Main extends JFrame {
     public static void main(String[] args) {
         Main mainUI = new Main();
     }
+
 }

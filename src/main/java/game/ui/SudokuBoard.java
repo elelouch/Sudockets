@@ -1,5 +1,6 @@
 package game.ui;
 
+import game.connection.ConnectionManager;
 import sudoku.SudokuGenerator;
 import sudoku.SudokuSolver;
 
@@ -19,21 +20,23 @@ public class SudokuBoard extends JPanel {
     private static final int BORDER_PIXELS = 1;
     private static final String nullCellMessage = "Must select a cell before placing a number";
 
-    ArrayDeque<SudokuCell> coloredCells;
-    SudokuCell selectedCell;
-    JPanel[][] boxes;
-    SudokuCell[][] cells;
-    int[][] solution;
-    Border defaultBorder;
-    Border thickerBorder;
-    int tries;
-    int settedCells;
+    private ArrayDeque<SudokuCell> coloredCells;
+    private SudokuCell selectedCell;
+    private JPanel[][] boxes;
+    private SudokuCell[][] cells;
+    private int[][] boardSolution;
+    private int[][] board;
+    private Border defaultBorder;
+    private Border thickerBorder;
+    private int tries;
+    private int settedCells;
+    private ConnectionManager connectionManager;
 
-    SudokuBoard() {
-        int[][] sudoku = SudokuGenerator.generateUniqueSudoku();
+    public SudokuBoard() {
+        board = SudokuGenerator.generateUniqueSudoku();
         selectedCell = null;
         settedCells = 0;
-        solution = SudokuSolver.solveSudoku(sudoku).get(FIRST);
+        boardSolution = SudokuSolver.solveSudoku(board).get(FIRST);
         tries = MAX_TRIES;
         boxes = new JPanel[BOX_SIDE][BOX_SIDE];
         cells = new SudokuCell[SIZE][SIZE];
@@ -42,8 +45,8 @@ public class SudokuBoard extends JPanel {
         coloredCells = new ArrayDeque<>(MAX_COLORED_CELLS);
 
         setLayout(generateGridSquaredLayout(BOX_SIDE));
-        fillAndAddBoxes();
-        fillCells(sudoku);
+        setBoxes();
+        fillSudokuCells(board);
         setVisible(true);
     }
 
@@ -51,7 +54,7 @@ public class SudokuBoard extends JPanel {
         return new GridLayout(side, side);
     }
 
-    private void fillAndAddBoxes() {
+    private void setBoxes() {
         for (int i = 0; i < BOX_SIDE; i++) {
             boxes[i] = new JPanel[BOX_SIDE];
             for (int j = 0; j < BOX_SIDE; j++) {
@@ -76,7 +79,6 @@ public class SudokuBoard extends JPanel {
         int boxj = j / BOX_SIDE;
         JPanel box = boxes[boxi][boxj];
         Component[] boxCellsToBeSelected = box.getComponents();
-
         for (int k = 0; k < SIZE; k++) {
             colorAndAddCellToStack((SudokuCell) boxCellsToBeSelected[k]);
             if (k / BOX_SIDE != boxj) {
@@ -110,7 +112,7 @@ public class SudokuBoard extends JPanel {
         return newCell;
     }
 
-    private void fillCells(int[][] sudokuBoard) {
+    private void fillSudokuCells(int[][] sudokuBoard) {
         for (int i = 0; i < SIZE; i++) {
             cells[i] = new SudokuCell[SIZE];
             for (int j = 0; j < SIZE; j++) {
@@ -130,22 +132,30 @@ public class SudokuBoard extends JPanel {
             selectedCell.setText("");
     }
 
-    public void fillSelectedCell(int number) throws NullPointerException {
-        throwIfCellNull();
-
-        if (validNumber(number) && selectedCell.isModifiable()) {
-            int i = selectedCell.getRow();
-            int j = selectedCell.getCol();
-
-            if (number == solution[i][j]) {
-                selectedCell.setUnmodifiable();
+    public synchronized void fillCell(int i, int j, int number) throws NullPointerException {
+        SudokuCell cellToModify = cells[i][j];
+        if (validNumber(number) && cellToModify.isModifiable()) {
+            if (number == boardSolution[i][j]) {
+                cellToModify.setUnmodifiable();
             } else {
                 tries--;
             }
-
-            selectedCell.removeAll();
-            selectedCell.setText(String.valueOf(number));
+            cellToModify.removeAll();
+            cellToModify.setText(String.valueOf(number));
+            board[i][j] = number;
+            if (connectionManager != null) {
+                connectionManager.sendUpdate(i,j,number);
+            }
         }
+    }
+
+    public void setConnectionManager(ConnectionManager connectionManager) {
+        this.connectionManager = connectionManager;
+    }
+
+    public void fillSelectedCell(int number) throws NullPointerException {
+        throwIfCellNull();
+        fillCell(selectedCell.getRow(), selectedCell.getCol(), number);
     }
 
     private static boolean validNumber(int number) {
