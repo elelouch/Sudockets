@@ -80,14 +80,13 @@ public class SudokuCell extends JButton {
     }
 
     public void setValue(int val) {
-        if(val >= 1 && val >= 9) {
+        if(1 <= val && val <= 9 && modifiable) {
             removeAll();
             setUnmodifiable();
             value = val;
             setText(val + "");
         }
     }
-
     public int getValue() {
         return value;
     }

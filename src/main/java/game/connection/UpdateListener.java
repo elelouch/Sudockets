@@ -19,10 +19,9 @@ public class UpdateListener implements Runnable {
         sharingStream = in;
     }
 
-
     @Override
     public void run() {
-        while(true) {
+        while (true) {
             try {
                 byte[] buffer = new byte[3];
                 int cellRow;
@@ -32,8 +31,8 @@ public class UpdateListener implements Runnable {
                 cellRow = buffer[0];
                 cellCol = buffer[1];
                 cellNum = buffer[2];
-                boardGame.fillCell(cellRow,cellCol, cellNum);
-            } catch(IOException e) {
+                boardGame.fillCell(cellRow, cellCol, cellNum);
+            } catch (IOException e) {
                 System.err.println("Couldn't read from buffer");
                 e.printStackTrace();
                 System.exit(1);

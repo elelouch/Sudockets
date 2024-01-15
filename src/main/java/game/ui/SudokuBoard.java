@@ -1,6 +1,6 @@
 package game.ui;
 
-import game.connection.ConnectionManager;
+import game.connection.UpdateSender;
 import sudoku.SudokuGenerator;
 import sudoku.SudokuSolver;
 
@@ -16,13 +16,12 @@ public class SudokuBoard extends JPanel {
     private static final int SIZE = 9;
     private static final int MAX_COLORED_CELLS = 21;
     private static final int BOX_SIDE = 3;
-    private static final int FIRST = 0;
     private static final int MAX_TRIES = 3;
+    private static final int FIRST = 0;
     private static final int EMPTY = 0;
     private static final int BORDER_PIXELS = 1;
     private static final Border DEFAULT_BORDER = LineBorder.createBlackLineBorder();
     private static final Border THICKER_BORDER = BorderFactory.createLineBorder(Color.black, BORDER_PIXELS + 2);
-    private static final String nullCellMessage = "Must select a cell before placing a number";
 
     private final ArrayDeque<SudokuCell> coloredCells;
     private SudokuCell selectedCell;
@@ -32,14 +31,13 @@ public class SudokuBoard extends JPanel {
     private int[][] board;
     private int tries;
     private int settedCells;
-    private ConnectionManager connectionManager;
+    private UpdateSender updateSender;
 
     public SudokuBoard() {
         tries = MAX_TRIES;
         boxes = new JPanel[BOX_SIDE][BOX_SIDE];
         cells = new SudokuCell[SIZE][SIZE];
         coloredCells = new ArrayDeque<>(MAX_COLORED_CELLS);
-
         setLayout(SUDOKU_LAYOUT);
         startNewBoard(SudokuGenerator.generateUniqueSudoku());
         setVisible(true);
@@ -131,10 +129,13 @@ public class SudokuBoard extends JPanel {
     }
 
     public void undoSelectedCell() {
-        selectedCell.setModifiable();
-        selectedCell.undo();
         int i = selectedCell.getRow();
         int j = selectedCell.getCol();
+        if (selectedCell.getValue() == boardSolution[i][j])
+            return;
+
+        selectedCell.setModifiable();
+        selectedCell.undo();
         board[i][j] = EMPTY;
     }
 
@@ -145,13 +146,13 @@ public class SudokuBoard extends JPanel {
         if (number != boardSolution[i][j]) {
             tries--;
         }
-        if (connectionManager != null) {
-            connectionManager.sendUpdate(i, j, number);
+        if (updateSender != null) {
+            updateSender.sendUpdate(i, j, number);
         }
     }
 
-    public void setConnectionManager(ConnectionManager connectionManager) {
-        this.connectionManager = connectionManager;
+    public void setUpdateSender(UpdateSender sender) {
+        this.updateSender = sender ;
     }
 
     public void fillSelectedCell(int number) {
