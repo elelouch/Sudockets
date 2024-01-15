@@ -47,9 +47,8 @@ public class SudokuKeypad extends JPanel {
 
 
     public void setSudokuGame(SudokuBoard sudokuGame) {
-        if(sudokuGame == null) {
+        if(sudokuGame == null)
            return;
-        }
 
         ActionListener buttonListener = e -> {
             JButton src = (JButton) e.getSource();

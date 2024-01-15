@@ -12,6 +12,7 @@ import java.util.ArrayDeque;
 import java.util.Arrays;
 
 public class SudokuBoard extends JPanel {
+    private static final GridLayout SUDOKU_LAYOUT = new GridLayout(3,3);
     private static final int SIZE = 9;
     private static final int MAX_COLORED_CELLS = 21;
     private static final int BOX_SIDE = 3;
@@ -39,13 +40,9 @@ public class SudokuBoard extends JPanel {
         cells = new SudokuCell[SIZE][SIZE];
         coloredCells = new ArrayDeque<>(MAX_COLORED_CELLS);
 
-        setLayout(generateGridSquaredLayout(BOX_SIDE));
+        setLayout(SUDOKU_LAYOUT);
         startNewBoard(SudokuGenerator.generateUniqueSudoku());
         setVisible(true);
-    }
-
-    private static GridLayout generateGridSquaredLayout(int side) {
-        return new GridLayout(side, side);
     }
 
     public int[][] getBoardCopy() {
@@ -55,13 +52,14 @@ public class SudokuBoard extends JPanel {
         }
         return boardCopy;
     }
+
     private void setBoxes() {
         removeAll();
         for (int i = 0; i < BOX_SIDE; i++) {
             boxes[i] = new JPanel[BOX_SIDE];
             for (int j = 0; j < BOX_SIDE; j++) {
                 boxes[i][j] = new JPanel();
-                boxes[i][j].setLayout(generateGridSquaredLayout(BOX_SIDE));
+                boxes[i][j].setLayout(SUDOKU_LAYOUT);
                 boxes[i][j].setBorder(THICKER_BORDER);
                 add(boxes[i][j]);
             }
@@ -80,9 +78,9 @@ public class SudokuBoard extends JPanel {
         int boxi = i / BOX_SIDE;
         int boxj = j / BOX_SIDE;
         JPanel box = boxes[boxi][boxj];
-        Component[] boxCellsToBeSelected = box.getComponents();
+        Component[] boxCells = box.getComponents();
         for (int k = 0; k < SIZE; k++) {
-            colorAndAddCellToStack((SudokuCell) boxCellsToBeSelected[k]);
+            colorAndAddCellToStack((SudokuCell) boxCells[k]);
             if (k / BOX_SIDE != boxj) {
                 colorAndAddCellToStack(cells[i][k]);
             }
@@ -99,8 +97,6 @@ public class SudokuBoard extends JPanel {
 
     private SudokuCell generateNewCell(int i, int j) {
         SudokuCell newCell = new SudokuCell(i, j);
-        newCell.setOpaque(true);
-        newCell.setBackground(Color.white);
         newCell.setBorder(DEFAULT_BORDER);
         newCell.addActionListener(e -> {
             if (selectedCell != null) {
@@ -135,24 +131,22 @@ public class SudokuBoard extends JPanel {
     }
 
     public void undoSelectedCell() {
-        if (selectedCell.isModifiable())
-            selectedCell.setText("");
+        selectedCell.setModifiable();
+        selectedCell.undo();
+        int i = selectedCell.getRow();
+        int j = selectedCell.getCol();
+        board[i][j] = EMPTY;
     }
 
-    public synchronized void fillCell(int i, int j, int number) throws NullPointerException {
+    public synchronized void fillCell(int i, int j, int number) {
         SudokuCell cellToModify = cells[i][j];
-        if (validNumber(number) && cellToModify.isModifiable()) {
-            if (number == boardSolution[i][j]) {
-                cellToModify.setUnmodifiable();
-            } else {
-                tries--;
-            }
-            cellToModify.removeAll();
-            cellToModify.setText(String.valueOf(number));
-            board[i][j] = number;
-            if (connectionManager != null) {
-                connectionManager.sendUpdate(i,j,number);
-            }
+        cellToModify.setValue(number);
+        board[i][j] = number;
+        if (number != boardSolution[i][j]) {
+            tries--;
+        }
+        if (connectionManager != null) {
+            connectionManager.sendUpdate(i, j, number);
         }
     }
 
@@ -160,50 +154,11 @@ public class SudokuBoard extends JPanel {
         this.connectionManager = connectionManager;
     }
 
-    public void fillSelectedCell(int number) throws NullPointerException {
-        throwIfCellNull();
+    public void fillSelectedCell(int number) {
         fillCell(selectedCell.getRow(), selectedCell.getCol(), number);
     }
 
-    private static boolean validNumber(int number) {
-        return number >= 1 && number <= 9;
-    }
-
-    private boolean selectedCellHasNotes() {
-        return selectedCell.getComponents().length > 0;
-    }
-
-    private void throwIfCellNull() throws NullPointerException {
-        if (selectedCell == null) {
-            throw new NullPointerException(nullCellMessage);
-        }
-    }
-
-    public void addNoteSelectedCell(int number) throws NullPointerException {
-        throwIfCellNull();
-        if (!(validNumber(number) && selectedCell.isModifiable()))
-            return;
-        addNotesIfNotAdded();
-
-        Component desiredLabel = selectedCell.getComponents()[number - 1];
-        JLabel label = (JLabel) desiredLabel;
-        if (label.getText().isEmpty()) {
-            label.setText(number + "");
-        } else {
-            label.setText("");
-        }
-    }
-
-    private void addNotesIfNotAdded() {
-        if (selectedCellHasNotes())
-            return;
-
-        selectedCell.setLayout(generateGridSquaredLayout(BOX_SIDE));
-        for (int i = 0; i < SIZE; i++) {
-            Font italicFont = new Font("monospaced", Font.ITALIC, 15);
-            JLabel newLabel = new JLabel();
-            newLabel.setFont(italicFont);
-            selectedCell.add(newLabel);
-        }
+    public void addNoteSelectedCell(int number) {
+        selectedCell.addNote(number);
     }
 }
