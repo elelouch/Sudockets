@@ -128,15 +128,22 @@ public class SudokuBoard extends JPanel {
         }
     }
 
-    public void undoSelectedCell() {
-        int i = selectedCell.getRow();
-        int j = selectedCell.getCol();
+    public synchronized void undoCell(int i, int j) {
+        SudokuCell cell = cells[i][j];
         if (selectedCell.getValue() == boardSolution[i][j])
             return;
 
-        selectedCell.setModifiable();
-        selectedCell.undo();
+        cell.setModifiable();
+        cell.undo();
         board[i][j] = EMPTY;
+
+        if(updateSender != null) {
+            updateSender.sendUndo(i,j);
+        }
+    }
+
+    public void undoSelectedCell() {
+        undoCell(selectedCell.getRow(), selectedCell.getCol());
     }
 
     public synchronized void fillCell(int i, int j, int number) {

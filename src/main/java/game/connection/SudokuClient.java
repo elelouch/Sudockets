@@ -28,8 +28,6 @@ public class SudokuClient extends UpdateSender {
         listener.setSharingStream(in);
         Thread listenerThread = new Thread(listener);
         listenerThread.start();
-
-        board.setUpdateSender(this);
     }
 
     private static int[][] unflatBoard(byte[] flatSudoku) {
