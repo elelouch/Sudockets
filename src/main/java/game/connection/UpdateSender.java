@@ -1,18 +1,19 @@
 package game.connection;
 
+import game.ui.SudokuBoard;
+
 import java.io.IOException;
 import java.io.OutputStream;
 
-public abstract class UpdateSender {
+public class UpdateSender {
     private static final byte BUFFER_SIZE = 81;
     OutputStream outputStream;
-    UpdateSender() { }
-    UpdateSender(OutputStream out) {
-        outputStream = out;
-    }
+    SudokuBoard boardOwner;
 
-    public void setOutputStream(OutputStream outputStream) {
-        this.outputStream = outputStream;
+    UpdateSender(OutputStream out, SudokuBoard owner) {
+        outputStream = out;
+        boardOwner = owner;
+        sendFullUpdate(owner.getBoardCopy());
     }
 
     public void sendUpdate(int i, int j, int number) {

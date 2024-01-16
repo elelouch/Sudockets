@@ -5,30 +5,49 @@ import game.ui.SudokuBoard;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
-import java.util.Map;
 
 import static game.SudokuSettings.*;
+import static game.connection.ConnectionOptions.*;
 
-public class SudokuClient extends UpdateSender {
+public class SudokuClient {
     private static final int PORT = 31145;
     private Socket clientSocket;
+    private String ip;
     private SudokuBoard board;
+    private Thread listenerThread;
+    private UpdateSender sender;
 
-    public SudokuClient(String ip, SudokuBoard newBoard) throws IOException {
-        byte[] buffer = new byte[CELLS_AMOUNT.value];
-        clientSocket = new Socket(ip, PORT);
+    public SudokuClient(String newIp, SudokuBoard newBoard) {
+        ip = newIp;
         board = newBoard;
+    }
 
-        setOutputStream(clientSocket.getOutputStream());
+    public void startConnection() {
+        try {
+            byte[] buffer = new byte[CELLS_AMOUNT.value];
+            clientSocket = new Socket(ip, PORT);
+            sender = new UpdateSender(clientSocket.getOutputStream(), board);
+            InputStream in = clientSocket.getInputStream();
+            in.read(buffer);
+            board.startNewBoard(unflatBoard(buffer));
+            listenerThread = new Thread(new UpdateListener(in, board));
+            listenerThread.start();
+        } catch (IOException e) {
+            System.err.println("Couldn't connect client to server");
+            e.printStackTrace();
+        }
+    }
 
-        InputStream in = clientSocket.getInputStream();
-        in.read(buffer);
-        board.startNewBoard(unflatBoard(buffer));
-
-        UpdateListener listener = new UpdateListener(board);
-        listener.setSharingStream(in);
-        Thread listenerThread = new Thread(listener);
-        listenerThread.start();
+    public void endConnection() {
+        if (clientSocket != null) {
+            try {
+                outputStream.write(new byte[]{END_CONNECTION.value});
+                clientSocket.close();
+            } catch (IOException e) {
+                System.err.println("Socket is already closed");
+                e.printStackTrace();
+            }
+        }
     }
 
     private static int[][] unflatBoard(byte[] flatSudoku) {
