@@ -1,8 +1,7 @@
 package game.ui;
 
 import game.connection.UpdateSender;
-import sudoku.SudokuGenerator;
-import sudoku.SudokuSolver;
+import game.sudoku.SudokuSolver;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -10,15 +9,12 @@ import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.util.ArrayDeque;
 import java.util.Arrays;
+import static game.SudokuSettings.*;
 
 public class SudokuBoard extends JPanel {
-    private static final GridLayout SUDOKU_LAYOUT = new GridLayout(3,3);
-    private static final int SIZE = 9;
     private static final int MAX_COLORED_CELLS = 21;
-    private static final int BOX_SIDE = 3;
     private static final int MAX_TRIES = 3;
-    private static final int FIRST = 0;
-    private static final int EMPTY = 0;
+    private static final GridLayout SUDOKU_LAYOUT = new GridLayout(BOX_WIDTH.value,BOX_WIDTH.value);
     private static final int BORDER_PIXELS = 1;
     private static final Border DEFAULT_BORDER = LineBorder.createBlackLineBorder();
     private static final Border THICKER_BORDER = BorderFactory.createLineBorder(Color.black, BORDER_PIXELS + 2);
@@ -30,36 +26,47 @@ public class SudokuBoard extends JPanel {
     private int[][] boardSolution;
     private int[][] board;
     private int tries;
-    private int settedCells;
     private UpdateSender updateSender;
 
     public SudokuBoard() {
         tries = MAX_TRIES;
-        boxes = new JPanel[BOX_SIDE][BOX_SIDE];
-        cells = new SudokuCell[SIZE][SIZE];
+        boxes = new JPanel[BOX_WIDTH.value][BOX_WIDTH.value];
+        cells = new SudokuCell[BOARD_WIDTH.value][BOARD_WIDTH.value];
         coloredCells = new ArrayDeque<>(MAX_COLORED_CELLS);
+        setBoxes();
+        selectedCell = null;
         setLayout(SUDOKU_LAYOUT);
-        startNewBoard(SudokuGenerator.generateUniqueSudoku());
+        setCells();
         setVisible(true);
+    }
+    public void setCells() {
+        for (int i = 0; i < BOARD_WIDTH.value; i++) {
+            cells[i] = new SudokuCell[BOARD_WIDTH.value];
+            for (int j = 0; j < BOARD_WIDTH.value; j++) {
+                SudokuCell newCell = generateNewCell(i, j);
+                cells[i][j] = newCell;
+                boxes[i / BOX_WIDTH.value][j / BOX_WIDTH.value].add(newCell);
+            }
+        }
     }
 
     public int[][] getBoardCopy() {
-        int[][] boardCopy = new int[SIZE][SIZE];
-        for (int i = 0; i < SIZE; i++) {
+        int[][] boardCopy = new int[BOARD_WIDTH.value][BOARD_WIDTH.value];
+        for (int i = 0; i < BOARD_WIDTH.value; i++) {
             boardCopy[i] = Arrays.copyOf(board[i], board[i].length);
         }
         return boardCopy;
     }
 
     private void setBoxes() {
-        removeAll();
-        for (int i = 0; i < BOX_SIDE; i++) {
-            boxes[i] = new JPanel[BOX_SIDE];
-            for (int j = 0; j < BOX_SIDE; j++) {
-                boxes[i][j] = new JPanel();
-                boxes[i][j].setLayout(SUDOKU_LAYOUT);
-                boxes[i][j].setBorder(THICKER_BORDER);
-                add(boxes[i][j]);
+        for (int i = 0; i < BOX_WIDTH.value; i++) {
+            boxes[i] = new JPanel[BOX_WIDTH.value];
+            for (int j = 0; j < boxes.length; j++) {
+                JPanel newBox = new JPanel();
+                boxes[i][j] = newBox;
+                newBox.setLayout(SUDOKU_LAYOUT);
+                newBox.setBorder(THICKER_BORDER);
+                add(newBox);
             }
         }
     }
@@ -73,16 +80,16 @@ public class SudokuBoard extends JPanel {
     private void colorBasedOnSelectedCell() {
         int i = selectedCell.getRow();
         int j = selectedCell.getCol();
-        int boxi = i / BOX_SIDE;
-        int boxj = j / BOX_SIDE;
+        int boxi = i / BOX_WIDTH.value;
+        int boxj = j / BOX_WIDTH.value;
         JPanel box = boxes[boxi][boxj];
         Component[] boxCells = box.getComponents();
-        for (int k = 0; k < SIZE; k++) {
+        for (int k = 0; k < BOARD_WIDTH.value; k++) {
             colorAndAddCellToStack((SudokuCell) boxCells[k]);
-            if (k / BOX_SIDE != boxj) {
+            if (k / BOX_WIDTH.value != boxj) {
                 colorAndAddCellToStack(cells[i][k]);
             }
-            if (k / BOX_SIDE != boxi) {
+            if (k / BOX_WIDTH.value != boxi) {
                 colorAndAddCellToStack(cells[k][j]);
             }
         }
@@ -109,20 +116,16 @@ public class SudokuBoard extends JPanel {
     }
 
     public void startNewBoard(int[][] newBoard) {
-        setBoxes();
+        tries = 0;
         board = newBoard;
-        boardSolution = SudokuSolver.solveSudoku(newBoard).get(FIRST);
-        selectedCell = null;
-        settedCells = 0;
-        for (int i = 0; i < SIZE; i++) {
-            cells[i] = new SudokuCell[SIZE];
-            for (int j = 0; j < SIZE; j++) {
-                SudokuCell newCell = generateNewCell(i, j);
-                cells[i][j] = newCell;
-                boxes[i / BOX_SIDE][j / BOX_SIDE].add(newCell);
-                if (board[i][j] != EMPTY) {
-                    newCell.setText(board[i][j] + "");
-                    newCell.setUnmodifiable();
+        boardSolution = SudokuSolver.solveSudoku(newBoard).get(0);
+
+        for (int i = 0; i < newBoard.length; i++) {
+            for (int j = 0; j < newBoard.length ; j++) {
+                int value = newBoard[i][j];
+                undoCell(i,j);
+                if(value != EMPTY_CELL.value) {
+                    fillCell(i,j,value);
                 }
             }
         }
@@ -130,12 +133,12 @@ public class SudokuBoard extends JPanel {
 
     public synchronized void undoCell(int i, int j) {
         SudokuCell cell = cells[i][j];
-        if (selectedCell.getValue() == boardSolution[i][j])
+        if (cell.getValue() == boardSolution[i][j])
             return;
 
         cell.setModifiable();
         cell.undo();
-        board[i][j] = EMPTY;
+        board[i][j] = EMPTY_CELL.value;
 
         if(updateSender != null) {
             updateSender.sendUndo(i,j);
@@ -149,8 +152,10 @@ public class SudokuBoard extends JPanel {
     public synchronized void fillCell(int i, int j, int number) {
         SudokuCell cellToModify = cells[i][j];
         cellToModify.setValue(number);
+        cellToModify.setForeground(Color.black);
         board[i][j] = number;
         if (number != boardSolution[i][j]) {
+            cellToModify.setForeground(Color.red);
             tries--;
         }
         if (updateSender != null) {

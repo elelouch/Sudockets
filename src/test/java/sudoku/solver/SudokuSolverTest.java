@@ -1,13 +1,8 @@
 package sudoku.solver;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import sudoku.SudokuGenerator;
-import sudoku.SudokuSolver;
+import game.sudoku.SudokuSolver;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 

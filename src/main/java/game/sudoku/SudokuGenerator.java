@@ -1,58 +1,64 @@
-package sudoku;
+package game.sudoku;
+
+import static game.SudokuSettings.*;
 
 import java.util.*;
 
 public class SudokuGenerator {
     private static final int PAIR = 2;
-    private static final int SIZE = SudokuSolver.SIZE;
-    private static final int CELLS_AMOUNT = 81;
     private static int[][] cellsAvailable;
-    private static int cellsAvailableSize = CELLS_AMOUNT;
+    private static int cellsAvailableSize = CELLS_AMOUNT.value;
 
     static {
-        cellsAvailable = new int[CELLS_AMOUNT][PAIR];
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
-                cellsAvailable[i * SIZE + j][0] = i;
-                cellsAvailable[i * SIZE + j][1] = j;
+        int size = BOARD_WIDTH.value;
+        cellsAvailable = new int[CELLS_AMOUNT.value][PAIR];
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                cellsAvailable[i * size + j][0] = i;
+                cellsAvailable[i * size + j][1] = j;
             }
         }
     }
 
-    private static int[][] generateSudokuAndShuffleCells() {
-        int[][] allowed = new int[SIZE][SIZE];
-        int[][] newSudoku = new int[SIZE][SIZE];
-        for (int i = 0; i < SIZE ; i++) {
-            Arrays.fill(allowed[i], 511);
+    public static int[][] generateSudokuAndShuffleCells() {
+        int size = BOARD_WIDTH.value;
+        int[][] allowed = new int[size][size];
+        int[][] newSudoku = new int[size][size];
+
+        for (int i = 0; i < allowed.length; i++) {
+            int[] arr = new int[size];
+            Arrays.fill(arr, 511);
+            allowed[i] = arr;
         }
-        while(cellsAvailableSize > 0) {
-            int cellPicker = (int)(Math.random() * cellsAvailableSize);
+
+        while (cellsAvailableSize > 0) {
+            int cellPicker = (int) (Math.random() * cellsAvailableSize);
             int[] cell = cellsAvailable[cellPicker];
             int x = cell[0];
             int y = cell[1];
             int randomNumber;
             int mask;
             do {
-                randomNumber = (int)(Math.random() * 9) + 1;
+                randomNumber = (int) (Math.random() * 9) + 1;
                 mask = SudokuSolver.BIT_REPRE[randomNumber];
-            }while ((allowed[x][y] & mask) <= 0);
+            } while ((allowed[x][y] & mask) <= 0);
 
             newSudoku[x][y] = randomNumber;
-            if(!SudokuSolver.solveSudoku(newSudoku).isEmpty()) {
+            if (!SudokuSolver.solveSudoku(newSudoku).isEmpty()) {
                 SudokuSolver.placeNumber(newSudoku, allowed, x, y, randomNumber);
                 removeCell(cellPicker);
             } else {
                 newSudoku[x][y] = 0;
             }
         }
-        cellsAvailableSize = CELLS_AMOUNT;
+        cellsAvailableSize = CELLS_AMOUNT.value;
         return newSudoku;
     }
 
-    public static int[][] generateUniqueSudoku(){
+    public static int[][] generateUniqueSudoku() {
         int[][] newSudoku = generateSudokuAndShuffleCells();
         int head = 0;
-        while(head < CELLS_AMOUNT) {
+        while (head < cellsAvailableSize) {
             int[] cell = cellsAvailable[head++];
             int x = cell[0];
             int y = cell[1];

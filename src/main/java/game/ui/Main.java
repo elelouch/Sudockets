@@ -1,27 +1,24 @@
 package game.ui;
 
+import game.sudoku.SudokuGenerator;
+
 import javax.swing.*;
 import java.awt.*;
 
 public class Main extends JFrame {
     SudokuBoard board;
     SudokuKeypad mainKeypad;
-    MainKeypad mainMenu;
-
-    public void generateSudokuBoard() {
-        board = new SudokuBoard();
-        getContentPane().add(board, BorderLayout.CENTER);
-    }
-
-
+    MainMenu mainMenu;
 
     Main() {
         Container pane = getContentPane();
-        mainKeypad = new SudokuKeypad();
-        mainMenu = new MainKeypad(this);
+        board = new SudokuBoard();
+        mainKeypad = new SudokuKeypad(board);
+        mainMenu = new MainMenu(board);
 
         pane.add(mainKeypad, BorderLayout.SOUTH);
         pane.add(mainMenu, BorderLayout.EAST);
+        pane.add(board, BorderLayout.CENTER);
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800,600);

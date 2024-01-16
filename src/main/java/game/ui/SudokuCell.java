@@ -15,8 +15,7 @@ public class SudokuCell extends JButton {
         row = newRow;
         col = newCol;
         modifiable = true;
-        Font buttonFont = new Font("monospaced", Font.BOLD, 30);
-        setFont(buttonFont);
+        setFont(new Font("monospaced", Font.BOLD, 30));
         setFocusPainted(true);
         setContentAreaFilled(false);
         setOpaque(true);

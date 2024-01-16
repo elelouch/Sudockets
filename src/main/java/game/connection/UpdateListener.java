@@ -6,9 +6,9 @@ import game.ui.SudokuBoard;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import static game.SudokuSettings.*;
 
 public class UpdateListener implements Runnable {
-    private static final int BUFFER_SIZE = 82;
     private static final int SIZE = 9;
     private static final byte UPDATE = 0;
     private static final byte UNDO = 1;
@@ -29,9 +29,9 @@ public class UpdateListener implements Runnable {
     public void run() {
         while (true) {
             try {
-                byte[] buffer = new byte[BUFFER_SIZE];
+                byte[] buffer = new byte[CELLS_AMOUNT.value + 1];
                 sharingStream.read(buffer);
-                parseBufferAndUpdateBoard(buffer);
+                parseBufferAndUpdateBoard(buffer, boardGame);
             } catch (IOException e) {
                 System.err.println("Couldn't read from buffer");
                 e.printStackTrace();
@@ -40,7 +40,7 @@ public class UpdateListener implements Runnable {
         }
     }
 
-    public void parseBufferAndUpdateBoard(byte[] buffer) {
+    public void parseBufferAndUpdateBoard(byte[] buffer, SudokuBoard board) {
         byte option = buffer[0];
         int i, j, number;
         switch (option) {
@@ -48,20 +48,19 @@ public class UpdateListener implements Runnable {
                 i = buffer[1];
                 j = buffer[2];
                 number = buffer[3];
-                boardGame.fillCell(i, j, number);
+                board.fillCell(i, j, number);
                 break;
             case UNDO:
                 i = buffer[1];
                 j = buffer[2];
-                boardGame.undoCell(i, j);
+                board.undoCell(i, j);
                 break;
             case FULL_UPDATE:
                 int[][] fullUpdate = parseFullUpdate(buffer);
-                boardGame.startNewBoard(fullUpdate);
+                board.startNewBoard(fullUpdate);
                 break;
         }
     }
-
     public static int[][] parseFullUpdate(byte[] buffer) {
         int[][] sudoku = new int[SIZE][SIZE];
         for (int i = 0; i < sudoku.length; i++) {

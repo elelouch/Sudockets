@@ -1,15 +1,14 @@
-package sudoku;
+package game.sudoku;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static game.SudokuSettings.*;
+
+
 public class SudokuSolver {
     protected static final int[] BIT_REPRE = {0, 1, 2, 4, 8, 16, 32, 64, 128, 256};
-    protected static final int SIZE = 9;
-    protected static final int THIRD = 3;
-    protected static final int EMPTY = 0;
-    protected static final int SUDOKU_FILLED = 81;
 
     private static int countBits(int n) {
         int count = 0;
@@ -22,15 +21,15 @@ public class SudokuSolver {
 
     private static int[][] deepCopy(int[][] arr) {
         return new int[][]{
-                Arrays.copyOf(arr[0], SIZE),
-                Arrays.copyOf(arr[1], SIZE),
-                Arrays.copyOf(arr[2], SIZE),
-                Arrays.copyOf(arr[3], SIZE),
-                Arrays.copyOf(arr[4], SIZE),
-                Arrays.copyOf(arr[5], SIZE),
-                Arrays.copyOf(arr[6], SIZE),
-                Arrays.copyOf(arr[7], SIZE),
-                Arrays.copyOf(arr[8], SIZE),
+                Arrays.copyOf(arr[0], BOARD_WIDTH.value),
+                Arrays.copyOf(arr[1], BOARD_WIDTH.value),
+                Arrays.copyOf(arr[2], BOARD_WIDTH.value),
+                Arrays.copyOf(arr[3], BOARD_WIDTH.value),
+                Arrays.copyOf(arr[4], BOARD_WIDTH.value),
+                Arrays.copyOf(arr[5], BOARD_WIDTH.value),
+                Arrays.copyOf(arr[6], BOARD_WIDTH.value),
+                Arrays.copyOf(arr[7], BOARD_WIDTH.value),
+                Arrays.copyOf(arr[8], BOARD_WIDTH.value),
         };
     }
 
@@ -38,12 +37,12 @@ public class SudokuSolver {
         int mask = ~BIT_REPRE[val];
         sudoku[x][y] = val;
         allowed[x][y] = 0;
-        for (int i = 0; i < SIZE; i++) {
+        for (int i = 0; i < BOARD_WIDTH.value; i++) {
             allowed[x][i] &= mask;
             allowed[i][y] &= mask;
         }
-        for (int i = 0; i < THIRD; i++) {
-            for (int j = 0; j < THIRD; j++) {
+        for (int i = 0; i < BOX_WIDTH.value; i++) {
+            for (int j = 0; j < BOX_WIDTH.value; j++) {
                 allowed[x / 3 * 3 + i][y / 3 * 3 + j] &= mask;
             }
         }
@@ -51,29 +50,29 @@ public class SudokuSolver {
 
     public static final List<int[][]> solveSudoku(int[][] sudoku) {
         int[][] gameCopy = deepCopy(sudoku);
-        int[][] allowedCopy = new int[SIZE][SIZE];
+        int[][] allowedCopy = new int[BOARD_WIDTH.value][BOARD_WIDTH.value];
 
-        for (int i = 0; i < SIZE; i++) {
-            Arrays.fill(allowedCopy[i], 511);
+        for (int[] allowed : allowedCopy) {
+            Arrays.fill(allowed, 511);
         }
 
         int count = 0;
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
-                if (sudoku[i][j] != EMPTY) {
+        for (int i = 0; i < gameCopy.length; i++) {
+            for (int j = 0; j < gameCopy[i].length; j++) {
+                if (sudoku[i][j] != EMPTY_CELL.value) {
                     placeNumber(gameCopy, allowedCopy, i, j, sudoku[i][j]);
                     count++;
                 }
             }
         }
 
-        return solveBoard(gameCopy,allowedCopy,count);
+        return solveBoard(gameCopy, allowedCopy, count);
     }
 
-    private static int trivialMoves(int sudoku[][], int[][] allowed) {
+    private static int trivialMoves(int[][] sudoku, int[][] allowed) {
         int count = 0;
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
+        for (int i = 0; i < sudoku.length; i++) {
+            for (int j = 0; j < sudoku.length; j++) {
                 if (countBits(allowed[i][j]) == 1) {
                     int num = allowed[i][j];
                     int val = 0;
@@ -91,11 +90,11 @@ public class SudokuSolver {
 
     private static int rowAndColumnSingles(int[][] sudoku, int[][] allowed) {
         int count = 0;
-        for (int val = 1; val <= SIZE; val++) {
+        for (int val = 1; val <= sudoku.length; val++) {
             int bitVal = BIT_REPRE[val];
-            for (int i = 0; i < SIZE; i++) {
+            for (int i = 0; i < sudoku.length; i++) {
                 int col = -1;
-                for (int j = 0; j < SIZE; j++) {
+                for (int j = 0; j < sudoku.length; j++) {
                     if ((allowed[i][j] & bitVal) > 0) {
                         if (col < 0) {
                             col = j;
@@ -110,10 +109,9 @@ public class SudokuSolver {
                     count++;
                 }
             }
-
-            for (int i = 0; i < SIZE; i++) {
+            for (int i = 0; i < sudoku.length; i++) {
                 int row = -1;
-                for (int j = 0; j < SIZE; j++) {
+                for (int j = 0; j < sudoku.length; j++) {
                     if ((allowed[j][i] & bitVal) > 0) {
                         if (row < 0) {
                             row = j;
@@ -134,10 +132,10 @@ public class SudokuSolver {
 
     private static int boxSingles(int[][] sudoku, int[][] allowed) {
         int count = 0;
-        for (int i = 0; i < SIZE; i += 3) {
-            for (int j = 0; j < SIZE; j += 3) {
-                for (int k = 1; k <= SIZE; k++) {
-                    int[] pair = single(sudoku, allowed, i, j, k);
+        for (int i = 0; i < sudoku.length; i += 3) {
+            for (int j = 0; j < sudoku.length; j += 3) {
+                for (int k = 1; k <= sudoku.length; k++) {
+                    int[] pair = findSingle(allowed, i, j, k);
                     if (pair[0] >= 0) {
                         placeNumber(sudoku, allowed, pair[0], pair[1], k);
                         count++;
@@ -148,11 +146,11 @@ public class SudokuSolver {
         return count;
     }
 
-    private static int[] single(int[][] sudoku, int[][] allowed, int x, int y, int val) {
+    private static int[] findSingle(int[][] allowed, int x, int y, int val) {
         int[] pair = new int[]{-1, -1};
         int bitval = BIT_REPRE[val];
-        for (int i = 0; i < THIRD; i++) {
-            for (int j = 0; j < THIRD; j++) {
+        for (int i = 0; i < BOX_WIDTH.value; i++) {
+            for (int j = 0; j < BOX_WIDTH.value; j++) {
                 if ((allowed[i + x][j + y] & bitval) > 0) {
                     if (pair[0] < 0) {
                         pair[0] = i + x;
@@ -169,10 +167,10 @@ public class SudokuSolver {
 
     private static List<int[][]> bruteForceBoard(int[][] sudoku, int[][] allowed, int placed) {
         List<int[][]> solutions = new ArrayList<>();
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
-                if (sudoku[i][j] == EMPTY) {
-                    for (int val = 1; val <= SIZE; val++) {
+        for (int i = 0; i < sudoku.length; i++) {
+            for (int j = 0; j < sudoku.length; j++) {
+                if (sudoku[i][j] == EMPTY_CELL.value) {
+                    for (int val = 1; val <= sudoku.length; val++) {
                         int bitval = BIT_REPRE[val];
                         if ((allowed[i][j] & bitval) > 0) {
                             int[][] gameCopy = deepCopy(sudoku);
@@ -195,13 +193,14 @@ public class SudokuSolver {
         List<int[][]> solutions = new ArrayList<>();
         placed += fillEasyValues(sudoku, allowed);
 
-        if (placed < SUDOKU_FILLED) {
+        if (placed < CELLS_AMOUNT.value) {
             solutions.addAll(bruteForceBoard(sudoku, allowed, placed));
         }
 
-        if (placed == SUDOKU_FILLED) {
+        if (placed == CELLS_AMOUNT.value) {
             solutions.add(sudoku);
         }
+
         return solutions;
     }
 
