@@ -8,6 +8,7 @@ public enum ConnectionOptions {
 
     byte value;
 
+
     ConnectionOptions(byte val) {
         value = val;
     }

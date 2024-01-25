@@ -8,12 +8,9 @@ import java.io.OutputStream;
 public class UpdateSender {
     private static final byte BUFFER_SIZE = 81;
     OutputStream outputStream;
-    SudokuBoard boardOwner;
 
-    UpdateSender(OutputStream out, SudokuBoard owner) {
+    UpdateSender(OutputStream out) {
         outputStream = out;
-        boardOwner = owner;
-        sendFullUpdate(owner.getBoardCopy());
     }
 
     public void sendUpdate(int i, int j, int number) {
@@ -26,7 +23,6 @@ public class UpdateSender {
 
     private static byte[] generateFlatBoardWithoutOption(int[][] board) {
         byte[] buffer = new byte[BUFFER_SIZE + 1];
-
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
                 buffer[i * board.length + j] = (byte)board[i][j];

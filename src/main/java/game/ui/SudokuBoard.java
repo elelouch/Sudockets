@@ -136,6 +136,7 @@ public class SudokuBoard extends JPanel {
         if (cell.getValue() == boardSolution[i][j])
             return;
 
+
         cell.setModifiable();
         cell.undo();
         board[i][j] = EMPTY_CELL.value;
@@ -164,7 +165,8 @@ public class SudokuBoard extends JPanel {
     }
 
     public void setUpdateSender(UpdateSender sender) {
-        this.updateSender = sender ;
+        updateSender = sender ;
+        updateSender.sendFullUpdate(board);
     }
 
     public void fillSelectedCell(int number) {

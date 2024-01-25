@@ -3,28 +3,42 @@ package game.connection;
 import game.ui.SudokuBoard;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import static game.SudokuSettings.*;
 
-public class SudokuServer extends UpdateSender {
+public class SudokuServer implements Connecter {
     private static final int PORT = 31145;
     ServerSocket server;
     Socket client;
+    SudokuBoard boardToUpdate;
+    Thread listenerThread;
 
-    public SudokuServer(SudokuBoard newBoard) throws IOException {
-        server = new ServerSocket(PORT);
-        client = server.accept();
-        newBoard.setUpdateSender(this);
+    public SudokuServer(SudokuBoard newBoard) {
+        try {
+            server = new ServerSocket(PORT);
+            boardToUpdate = newBoard;
+            UpdateSender sender = new UpdateSender(client.getOutputStream());
+            boardToUpdate.setUpdateSender(sender);
+            UpdateListener listener = new UpdateListener(client.getInputStream(), boardToUpdate);
+            listenerThread = new Thread(listener);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-        setOutputStream(client.getOutputStream());
-        sendFullUpdate(newBoard.getBoardCopy());
-
-        UpdateListener listener = new UpdateListener(client.getInputStream(),newBoard);
-        Thread listenerThread = new Thread(listener);
+    @Override
+    public void startConnection() {
         listenerThread.start();
     }
 
-
+    @Override
+    public void endConnection() {
+        try {
+            if (server != null) {
+                server.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

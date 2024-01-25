@@ -26,7 +26,7 @@ public class SudokuClient {
         try {
             byte[] buffer = new byte[CELLS_AMOUNT.value];
             clientSocket = new Socket(ip, PORT);
-            sender = new UpdateSender(clientSocket.getOutputStream(), board);
+            sender = new UpdateSender(clientSocket.getOutputStream());
             InputStream in = clientSocket.getInputStream();
             in.read(buffer);
             board.startNewBoard(unflatBoard(buffer));
@@ -41,7 +41,6 @@ public class SudokuClient {
     public void endConnection() {
         if (clientSocket != null) {
             try {
-                outputStream.write(new byte[]{END_CONNECTION.value});
                 clientSocket.close();
             } catch (IOException e) {
                 System.err.println("Socket is already closed");
