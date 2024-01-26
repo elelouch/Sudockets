@@ -3,8 +3,8 @@ package game.ui;
 import game.connection.Connecter;
 import game.connection.SudokuClient;
 import game.connection.SudokuServer;
-import game.ui.sudoku.SudokuPanel;
-import game.ui.sudoku.UnsolvableSudokuException;
+import game.ui.sudoku.panel.SudokuPanel;
+import game.ui.sudoku.exceptions.UnsolvableSudokuException;
 import game.utils.SudokuGenerator;
 
 import javax.swing.*;

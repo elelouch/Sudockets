@@ -1,7 +1,7 @@
-package game.ui.sudoku;
+package game.ui.sudoku.exceptions;
 
 public class UnsolvableSudokuException extends Exception{
-    UnsolvableSudokuException(String message) {
+    public UnsolvableSudokuException(String message) {
         super(message);
     }
 }

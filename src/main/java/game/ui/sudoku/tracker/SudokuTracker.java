@@ -1,5 +1,8 @@
-package game.ui.sudoku;
+package game.ui.sudoku.tracker;
 
+import game.ui.sudoku.cell.SudokuCell;
+import game.ui.sudoku.game.SudokuGame;
+import game.ui.sudoku.exceptions.UnsolvableSudokuException;
 import game.utils.SudokuSolver;
 
 import java.util.Arrays;
@@ -9,14 +12,43 @@ import static game.SudokuSettings.BOARD_WIDTH;
 import static game.SudokuSettings.EMPTY_CELL;
 
 public class SudokuTracker implements SudokuGame {
-    private int[][] boardSolution;
-    private int[][] board;
+    private CellTracker[][] boardSolution;
+    private CellTracker[][] board;
+
+    private class CellTracker implements SudokuCell {
+        int value;
+
+        @Override
+        public void setValue(int value) {
+           this.value = value;
+        }
+
+        @Override
+        public int getValue() {
+            return value;
+        }
+
+        @Override
+        public void undo() {
+            value = 0;
+        }
+    }
+
+
 
     public SudokuTracker(int[][] newBoard) throws UnsolvableSudokuException {
-        board = newBoard;
         List<int[][]> solutions = SudokuSolver.solveSudoku(newBoard);
+        board = new CellTracker[BOARD_WIDTH.value][BOARD_WIDTH.value];
+        boardSolution = new CellTracker[BOARD_WIDTH.value][BOARD_WIDTH.value];
+
         if (solutions.isEmpty()){
             throw new UnsolvableSudokuException("Sudoku must be solvable");
+        }
+
+        int[][] solution = solutions.get(0);
+
+        for(int[] row : solution) {
+
         }
     }
 

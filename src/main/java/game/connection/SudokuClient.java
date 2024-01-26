@@ -1,6 +1,6 @@
 package game.connection;
 
-import game.ui.sudoku.SudokuPanel;
+import game.ui.sudoku.panel.SudokuPanel;
 
 import java.io.IOException;
 import java.io.InputStream;

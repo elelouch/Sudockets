@@ -1,8 +1,8 @@
 package game.connection;
 
 
-import game.ui.sudoku.SudokuPanel;
-import game.ui.sudoku.UnsolvableSudokuException;
+import game.ui.sudoku.panel.SudokuPanel;
+import game.ui.sudoku.exceptions.UnsolvableSudokuException;
 
 import java.io.IOException;
 import java.io.InputStream;

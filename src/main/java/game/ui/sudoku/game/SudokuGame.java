@@ -1,4 +1,4 @@
-package game.ui.sudoku;
+package game.ui.sudoku.game;
 
 public interface SudokuGame {
     void setCell(int i, int j, int num);
