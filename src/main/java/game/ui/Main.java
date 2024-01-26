@@ -1,18 +1,16 @@
 package game.ui;
 
-import game.sudoku.SudokuGenerator;
-
 import javax.swing.*;
 import java.awt.*;
 
 public class Main extends JFrame {
-    SudokuBoard board;
+    SudokuPanel board;
     SudokuKeypad mainKeypad;
     MainMenu mainMenu;
 
     Main() {
         Container pane = getContentPane();
-        board = new SudokuBoard();
+        board = new SudokuPanel();
         mainKeypad = new SudokuKeypad(board);
         mainMenu = new MainMenu(board);
 

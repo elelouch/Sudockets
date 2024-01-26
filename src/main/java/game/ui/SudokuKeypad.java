@@ -8,7 +8,7 @@ import java.awt.event.ActionListener;
 public class SudokuKeypad extends JPanel {
     private static final int SIZE = 9;
 
-    private SudokuBoard sudokuGame;
+    private SudokuPanel sudokuGame;
     private boolean notesMode;
     private Border notesModeOnBorder;
     private Border notesModeOffBorder;
@@ -40,13 +40,13 @@ public class SudokuKeypad extends JPanel {
         }
     }
 
-    public SudokuKeypad(SudokuBoard sudokuGame) {
+    public SudokuKeypad(SudokuPanel sudokuGame) {
         this();
         setSudokuGame(sudokuGame);
     }
 
 
-    public void setSudokuGame(SudokuBoard sudokuGame) {
+    public void setSudokuGame(SudokuPanel sudokuGame) {
         if(sudokuGame == null)
            return;
 

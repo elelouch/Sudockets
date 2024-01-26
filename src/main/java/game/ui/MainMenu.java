@@ -12,12 +12,12 @@ import java.awt.event.ActionListener;
 import java.util.regex.Pattern;
 
 public class MainMenu extends JPanel {
-    private SudokuBoard board;
+    private SudokuPanel board;
     private JButton startSessionButton;
     private JButton connectToSessionButton;
     private Connecter connecter;
 
-    public MainMenu(SudokuBoard newBoard) {
+    public MainMenu(SudokuPanel newBoard) {
         Pattern ipPattern = Pattern.compile("^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$");
         setLayout(new GridLayout(0, 1));
         board = newBoard;

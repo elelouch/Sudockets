@@ -14,27 +14,25 @@ import java.util.List;
 
 import static game.SudokuSettings.*;
 
-public class SudokuBoard extends JPanel {
-    private static final int MAX_COLORED_CELLS = 21;
+public class SudokuPanel extends JPanel {
     private static final GridLayout SUDOKU_LAYOUT = new GridLayout(BOX_WIDTH.value, BOX_WIDTH.value);
     private static final int BORDER_PIXELS = 1;
     private static final Border DEFAULT_BORDER = LineBorder.createBlackLineBorder();
     private static final Border THICKER_BORDER = BorderFactory.createLineBorder(Color.black, BORDER_PIXELS + 2);
 
-    private final ArrayDeque<SudokuCell> coloredCells;
     private SudokuCell selectedCell;
     private final JPanel[][] boxes;
     private final SudokuCell[][] cells;
+    private final SudokuCellsPainter painter;
     private int[][] boardSolution;
     private int[][] board;
     private UpdateSender updateSender;
 
-    public SudokuBoard() {
+    public SudokuPanel() {
         boxes = new JPanel[BOX_WIDTH.value][BOX_WIDTH.value];
         cells = new SudokuCell[BOARD_WIDTH.value][BOARD_WIDTH.value];
-        coloredCells = new ArrayDeque<>(MAX_COLORED_CELLS);
+        painter = new SudokuCellsPainter(cells);
         setBoxes();
-        selectedCell = null;
         setLayout(SUDOKU_LAYOUT);
         setCells();
         setVisible(true);
@@ -72,35 +70,6 @@ public class SudokuBoard extends JPanel {
         }
     }
 
-    private void unColorCells() {
-        while (!coloredCells.isEmpty()) {
-            coloredCells.removeLast().setBackground(Color.white);
-        }
-    }
-
-    private void colorBasedOnSelectedCell() {
-        int i = selectedCell.getRow();
-        int j = selectedCell.getCol();
-        int boxi = i / BOX_WIDTH.value;
-        int boxj = j / BOX_WIDTH.value;
-        JPanel box = boxes[boxi][boxj];
-        Component[] boxCells = box.getComponents();
-        for (int k = 0; k < BOARD_WIDTH.value; k++) {
-            colorAndAddCellToStack((SudokuCell) boxCells[k]);
-            if (k / BOX_WIDTH.value != boxj) {
-                colorAndAddCellToStack(cells[i][k]);
-            }
-            if (k / BOX_WIDTH.value != boxi) {
-                colorAndAddCellToStack(cells[k][j]);
-            }
-        }
-    }
-
-    private void colorAndAddCellToStack(SudokuCell cell) {
-        cell.setBackground(Color.lightGray);
-        coloredCells.addLast(cell);
-    }
-
     private SudokuCell generateNewCell(int i, int j) {
         SudokuCell newCell = new SudokuCell(i, j);
         newCell.setBorder(DEFAULT_BORDER);
@@ -110,8 +79,6 @@ public class SudokuBoard extends JPanel {
             }
             selectedCell = (SudokuCell) e.getSource();
             selectedCell.setBorder(THICKER_BORDER);
-            unColorCells();
-            colorBasedOnSelectedCell();
         });
         return newCell;
     }

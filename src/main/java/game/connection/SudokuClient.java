@@ -1,6 +1,6 @@
 package game.connection;
 
-import game.ui.SudokuBoard;
+import game.ui.SudokuPanel;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,10 +11,10 @@ public class SudokuClient implements Connecter {
     private Socket clientSocket;
     private Thread listenerThread;
     private UpdateSender sender;
-    private SudokuBoard board;
+    private SudokuPanel board;
 
 
-    public SudokuClient(String ip, SudokuBoard newBoard) {
+    public SudokuClient(String ip, SudokuPanel newBoard) {
         try {
             board = newBoard;
             clientSocket = new Socket(ip, PORT);
