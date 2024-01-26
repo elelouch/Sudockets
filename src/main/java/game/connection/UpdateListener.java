@@ -2,91 +2,80 @@ package game.connection;
 
 
 import game.ui.SudokuBoard;
+import game.ui.UnsolvableSudokuException;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
-import java.util.Map;
 
 import static game.SudokuSettings.*;
-import static game.connection.ConnectionOptions.*;
+import static game.connection.Updates.*;
 
 public class UpdateListener implements Runnable {
-    private static final Map<Byte, ConnectionOptions> byteToOptions;
+    public static final HashMap<Integer, Updates> options;
+
     static {
-        byteToOptions = new HashMap<>();
-        byteToOptions.put((byte)0, UPDATE);
-        byteToOptions.put((byte)1, UNDO);
-        byteToOptions.put((byte)2, FULL_UPDATE);
-        byteToOptions.put((byte)3, END_CONNECTION);
+        options = new HashMap<>();
+        options.put(0, UPDATE);
+        options.put(1, UNDO);
+        options.put(2, FULL_UPDATE);
+        options.put(3, END_CONNECTION);
     }
 
     InputStream sharingStream;
     SudokuBoard boardToUpdate;
-    byte[] buffer;
+    int lastOptionReceived;
 
     public UpdateListener(InputStream in, SudokuBoard board) {
-        buffer = new byte[CELLS_AMOUNT.value + 1];
         sharingStream = in;
         boardToUpdate = board;
-        try {
-            sharingStream.read(buffer);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        parseFullUpdate();
     }
 
     @Override
     public void run() {
-        while (true) {
-            try {
-                sharingStream.read(buffer);
+        try {
+            while (true) {
+                lastOptionReceived = sharingStream.read();
                 parseBufferAndUpdateBoard();
-            } catch (IOException e) {
-                System.err.println("Couldn't read from buffer, connection might be closed");
-                e.printStackTrace();
-                break;
             }
+        } catch (UnsolvableSudokuException e) {
+            e.printStackTrace();
+            System.err.println("Received sudoku might be wrong");
+        } catch (IOException e) {
+            System.err.println("Couldn't read from buffer, connection might be closed. Ending thread.");
         }
     }
 
-    public void parseBufferAndUpdateBoard() {
-        ConnectionOptions option = byteToOptions.get(buffer[0]);
+    public void parseBufferAndUpdateBoard() throws IOException, UnsolvableSudokuException {
         int i, j, number;
-        switch (option) {
+
+        switch (options.get(lastOptionReceived)) {
             case UPDATE:
-                i = buffer[1];
-                j = buffer[2];
-                number = buffer[3];
+                i = sharingStream.read();
+                j = sharingStream.read();
+                number = sharingStream.read();
                 boardToUpdate.fillCell(i, j, number);
                 break;
             case UNDO:
-                i = buffer[1];
-                j = buffer[2];
+                i = sharingStream.read();
+                j = sharingStream.read();
                 boardToUpdate.undoCell(i, j);
                 break;
             case FULL_UPDATE:
-                int[][] fullUpdate = parseFullUpdate();
-                boardToUpdate.startNewBoard(fullUpdate);
+                boardToUpdate.startNewBoard(parseFullUpdate());
                 break;
             case END_CONNECTION:
-                try {
-                    sharingStream.close();
-                } catch(IOException e) {
-                    System.err.println("Couldn't close the socket stream in UpdateListener");
-                    e.printStackTrace();
-                }
+                sharingStream.close();
                 break;
         }
     }
 
-    public int[][] parseFullUpdate() {
+    public int[][] parseFullUpdate() throws IOException {
         int[][] sudoku = new int[BOARD_WIDTH.value][BOARD_WIDTH.value];
         for (int i = 0; i < sudoku.length; i++) {
             sudoku[i] = new int[sudoku.length];
             for (int j = 0; j < sudoku[i].length; j++) {
-                sudoku[i][j] = (int) buffer[i * sudoku.length + j + 1];
+                sudoku[i][j] = sharingStream.read();
             }
         }
         return sudoku;

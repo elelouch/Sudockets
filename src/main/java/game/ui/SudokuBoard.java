@@ -7,14 +7,16 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.Arrays;
+import java.util.List;
+
 import static game.SudokuSettings.*;
 
 public class SudokuBoard extends JPanel {
     private static final int MAX_COLORED_CELLS = 21;
-    private static final int MAX_TRIES = 3;
-    private static final GridLayout SUDOKU_LAYOUT = new GridLayout(BOX_WIDTH.value,BOX_WIDTH.value);
+    private static final GridLayout SUDOKU_LAYOUT = new GridLayout(BOX_WIDTH.value, BOX_WIDTH.value);
     private static final int BORDER_PIXELS = 1;
     private static final Border DEFAULT_BORDER = LineBorder.createBlackLineBorder();
     private static final Border THICKER_BORDER = BorderFactory.createLineBorder(Color.black, BORDER_PIXELS + 2);
@@ -25,11 +27,9 @@ public class SudokuBoard extends JPanel {
     private final SudokuCell[][] cells;
     private int[][] boardSolution;
     private int[][] board;
-    private int tries;
     private UpdateSender updateSender;
 
     public SudokuBoard() {
-        tries = MAX_TRIES;
         boxes = new JPanel[BOX_WIDTH.value][BOX_WIDTH.value];
         cells = new SudokuCell[BOARD_WIDTH.value][BOARD_WIDTH.value];
         coloredCells = new ArrayDeque<>(MAX_COLORED_CELLS);
@@ -39,6 +39,7 @@ public class SudokuBoard extends JPanel {
         setCells();
         setVisible(true);
     }
+
     public void setCells() {
         for (int i = 0; i < BOARD_WIDTH.value; i++) {
             cells[i] = new SudokuCell[BOARD_WIDTH.value];
@@ -115,34 +116,38 @@ public class SudokuBoard extends JPanel {
         return newCell;
     }
 
-    public void startNewBoard(int[][] newBoard) {
-        tries = 0;
+    public void startNewBoard(int[][] newBoard) throws UnsolvableSudokuException {
+        List<int[][]> solutions = SudokuSolver.solveSudoku(newBoard);
+        if (solutions.isEmpty()) {
+            throw new UnsolvableSudokuException("Sudoku must be solvable to start a new board!");
+        }
         board = newBoard;
-        boardSolution = SudokuSolver.solveSudoku(newBoard).get(0);
+        boardSolution = solutions.get(0);
 
         for (int i = 0; i < newBoard.length; i++) {
-            for (int j = 0; j < newBoard.length ; j++) {
+            for (int j = 0; j < newBoard.length; j++) {
                 int value = newBoard[i][j];
-                undoCell(i,j);
-                if(value != EMPTY_CELL.value) {
-                    fillCell(i,j,value);
+                undoCell(i, j);
+                if (value != EMPTY_CELL.value) {
+                    fillCell(i, j, value);
                 }
             }
         }
     }
 
     public synchronized void undoCell(int i, int j) {
-        SudokuCell cell = cells[i][j];
-        if (cell.getValue() == boardSolution[i][j])
-            return;
-
-
-        cell.setModifiable();
-        cell.undo();
-        board[i][j] = EMPTY_CELL.value;
-
-        if(updateSender != null) {
-            updateSender.sendUndo(i,j);
+        try {
+            SudokuCell cell = cells[i][j];
+            if (cell.getValue() == boardSolution[i][j])
+                return;
+            cell.setModifiable();
+            cell.undo();
+            board[i][j] = EMPTY_CELL.value;
+            if (updateSender != null) {
+                updateSender.sendUndo(i, j);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -151,22 +156,25 @@ public class SudokuBoard extends JPanel {
     }
 
     public synchronized void fillCell(int i, int j, int number) {
-        SudokuCell cellToModify = cells[i][j];
-        cellToModify.setValue(number);
-        cellToModify.setForeground(Color.black);
-        board[i][j] = number;
-        if (number != boardSolution[i][j]) {
-            cellToModify.setForeground(Color.red);
-            tries--;
-        }
-        if (updateSender != null) {
-            updateSender.sendUpdate(i, j, number);
+        try {
+            SudokuCell cellToModify = cells[i][j];
+            cellToModify.setValue(number);
+            cellToModify.setForeground(Color.black);
+            board[i][j] = number;
+            if (number != boardSolution[i][j]) {
+                cellToModify.setForeground(Color.red);
+            }
+
+            if (updateSender != null) {
+                updateSender.sendUpdate(i, j, number);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
     public void setUpdateSender(UpdateSender sender) {
-        updateSender = sender ;
-        updateSender.sendFullUpdate(board);
+        updateSender = sender;
     }
 
     public void fillSelectedCell(int number) {
