@@ -1,4 +1,4 @@
-package game.ui;
+package game.ui.sudoku;
 
 import javax.swing.*;
 import java.awt.*;

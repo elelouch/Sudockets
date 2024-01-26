@@ -1,4 +1,4 @@
-package game.sudoku;
+package game.utils;
 
 import static game.SudokuSettings.*;
 

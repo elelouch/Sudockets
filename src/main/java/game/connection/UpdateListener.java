@@ -1,8 +1,8 @@
 package game.connection;
 
 
-import game.ui.SudokuPanel;
-import game.ui.UnsolvableSudokuException;
+import game.ui.sudoku.SudokuPanel;
+import game.ui.sudoku.UnsolvableSudokuException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,7 +54,7 @@ public class UpdateListener implements Runnable {
                 i = sharingStream.read();
                 j = sharingStream.read();
                 number = sharingStream.read();
-                boardToUpdate.fillCell(i, j, number);
+                boardToUpdate.setCell(i, j, number);
                 break;
             case UNDO:
                 i = sharingStream.read();

@@ -1,5 +1,7 @@
 package game.ui;
 
+import game.ui.sudoku.SudokuPanel;
+
 import javax.swing.*;
 import java.awt.*;
 

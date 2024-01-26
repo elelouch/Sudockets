@@ -3,7 +3,9 @@ package game.ui;
 import game.connection.Connecter;
 import game.connection.SudokuClient;
 import game.connection.SudokuServer;
-import game.sudoku.SudokuGenerator;
+import game.ui.sudoku.SudokuPanel;
+import game.ui.sudoku.UnsolvableSudokuException;
+import game.utils.SudokuGenerator;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;

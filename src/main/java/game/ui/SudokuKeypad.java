@@ -1,5 +1,7 @@
 package game.ui;
 
+import game.ui.sudoku.SudokuPanel;
+
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
@@ -20,7 +22,7 @@ public class SudokuKeypad extends JPanel {
         notesModeOffBorder = BorderFactory.createLineBorder(Color.red, 5);
         notesModeOnBorder = BorderFactory.createLineBorder(Color.green, 5);
         undoButton = new JButton("Undo");
-        undoButton.addActionListener(e -> sudokuGame.undoSelectedCell());
+        undoButton.addActionListener(e -> sudokuGame.undoCell());
         add(undoButton);
         notesButton = new JButton("Notes");
         notesButton.setBorder(notesModeOffBorder);
@@ -54,9 +56,9 @@ public class SudokuKeypad extends JPanel {
             JButton src = (JButton) e.getSource();
             int valueSelected = Integer.parseInt(src.getText());
             if (notesMode) {
-                sudokuGame.addNoteSelectedCell(valueSelected);
+                sudokuGame.addNote(valueSelected);
             } else {
-                sudokuGame.fillSelectedCell(valueSelected);
+                sudokuGame.fillCell(valueSelected);
             }
         };
 

@@ -1,7 +1,7 @@
 package sudoku.solver;
 
 import org.junit.jupiter.api.Test;
-import game.sudoku.SudokuSolver;
+import game.utils.SudokuSolver;
 
 import java.util.List;
 

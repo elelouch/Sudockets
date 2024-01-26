@@ -1,7 +1,7 @@
 package sudoku.solver;
 
 import org.junit.jupiter.api.Test;
-import game.sudoku.SudokuGenerator;
+import game.utils.SudokuGenerator;
 
 public class SudokuGeneratorTest {
     @Test

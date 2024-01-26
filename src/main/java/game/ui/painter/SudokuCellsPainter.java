@@ -1,13 +1,14 @@
-package game.ui;
+package game.ui.painter;
 
-import javax.swing.*;
+import game.ui.sudoku.SudokuCell;
+
 import java.awt.*;
 import java.util.ArrayDeque;
 
 import static game.SudokuSettings.BOARD_WIDTH;
 import static game.SudokuSettings.BOX_WIDTH;
 
-public class SudokuCellsPainter {
+public class SudokuCellsPainter implements CellsPainter {
     private static final int MAX_COLORED_CELLS = 21;
     private final ArrayDeque<SudokuCell> paintedCells = new ArrayDeque<>(MAX_COLORED_CELLS);
     private SudokuCell selectedCell;
@@ -56,6 +57,7 @@ public class SudokuCellsPainter {
         selectedCell = cells[i][j];
     }
 
+    @Override
     public void paintCells() {
         if(selectedCell == null)
             return;

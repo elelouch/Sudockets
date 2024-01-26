@@ -1,6 +1,6 @@
 package game.connection;
 
-import game.ui.SudokuPanel;
+import game.ui.sudoku.SudokuPanel;
 
 import java.io.IOException;
 import java.net.ServerSocket;
