@@ -4,4 +4,5 @@ public interface SudokuCell {
     void setValue(int value);
     int getValue();
     void undo();
+    boolean isEmpty();
 }

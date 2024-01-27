@@ -22,7 +22,7 @@ public class SudokuServer implements Connecter {
             UpdateListener listener = new UpdateListener(client.getInputStream(), board);
             listenerThread = new Thread(listener);
             sender = new UpdateSender(client.getOutputStream());
-            board.setUpdateSender(sender);
+            board.suscribe(sender);
         } catch (IOException e) {
             System.err.println("Couldn't connect to server");
             e.printStackTrace();
@@ -31,12 +31,7 @@ public class SudokuServer implements Connecter {
 
     @Override
     public void startConnection() {
-        try {
-            sender.sendFullUpdate(board.getBoardCopy());
-            listenerThread.start();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        listenerThread.start();
     }
 
     @Override
@@ -47,6 +42,7 @@ public class SudokuServer implements Connecter {
                 client.getOutputStream().close();
                 client.close();
                 server.close();
+                board.desuscribe(sender);
             }
         } catch (IOException e) {
             e.printStackTrace();

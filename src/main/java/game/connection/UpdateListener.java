@@ -38,15 +38,12 @@ public class UpdateListener implements Runnable {
                 lastOptionReceived = sharingStream.read();
                 parseBufferAndUpdateBoard();
             }
-        } catch (UnsolvableSudokuException e) {
-            e.printStackTrace();
-            System.err.println("Received sudoku might be wrong");
         } catch (IOException e) {
             System.err.println("Couldn't read from buffer, connection might be closed. Ending thread.");
         }
     }
 
-    public void parseBufferAndUpdateBoard() throws IOException, UnsolvableSudokuException {
+    public void parseBufferAndUpdateBoard() throws IOException {
         int i, j, number;
 
         switch (options.get(lastOptionReceived)) {
@@ -62,7 +59,7 @@ public class UpdateListener implements Runnable {
                 boardToUpdate.undoCell(i, j);
                 break;
             case FULL_UPDATE:
-                boardToUpdate.startNewBoard(parseFullUpdate());
+                boardToUpdate.setAllCells(parseFullUpdate());
                 break;
             case END_CONNECTION:
                 sharingStream.close();
@@ -71,11 +68,12 @@ public class UpdateListener implements Runnable {
     }
 
     public int[][] parseFullUpdate() throws IOException {
-        int[][] sudoku = new int[BOARD_WIDTH.value][BOARD_WIDTH.value];
-        for (int i = 0; i < sudoku.length; i++) {
-            sudoku[i] = new int[sudoku.length];
-            for (int j = 0; j < sudoku[i].length; j++) {
-                sudoku[i][j] = sharingStream.read();
+        int size = BOARD_WIDTH.getValue();
+        int[][] sudoku = new int[size][size];
+        for(int[] row : sudoku) {
+            row = new int[size];
+            for (int j = 0; j < size; j++) {
+                row[j] = sharingStream.read();
             }
         }
         return sudoku;

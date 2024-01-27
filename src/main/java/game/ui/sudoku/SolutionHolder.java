@@ -1,16 +1,16 @@
-package game.ui.sudoku.tracker;
+package game.ui.sudoku;
 
 import game.ui.sudoku.exceptions.UnsolvableSudokuException;
 import game.utils.SudokuSolver;
 
 import java.util.List;
 
-public class SolutionTester {
+public class SolutionHolder {
     int[][] solution;
-    public SolutionTester(int[][] sudokuBoard) {
+    public SolutionHolder(int[][] sudokuBoard) {
         List<int[][]> solutions = SudokuSolver.solveSudoku(sudokuBoard);
         if(solutions.isEmpty()) {
-            throw new UnsolvableSudokuException("Board must be at least solvable to start a solution tester");
+            throw new UnsolvableSudokuException("Board must be at least solvable to have a solution");
         }
         solution = solutions.get(0);
     }

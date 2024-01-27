@@ -23,6 +23,11 @@ public class GameButton extends JButton implements SudokuCell {
     }
 
     @Override
+    public boolean isEmpty() {
+        return value == 0;
+    }
+
+    @Override
     public void setValue(int val) {
         if (1 <= val && val <= 9 && modifiable) {
             removeAll();
