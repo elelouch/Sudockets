@@ -2,7 +2,8 @@ package game.ui.sudoku.panel;
 
 import game.ui.painter.SudokuCellsPainter;
 import game.ui.sudoku.game.SudokuGame;
-import game.ui.sudoku.tracker.SudokuTracker;
+import game.ui.sudoku.tracker.SolutionTester;
+import game.ui.sudoku.tracker.SudokuGameUpdater;
 import game.ui.sudoku.exceptions.UnsolvableSudokuException;
 
 import javax.swing.*;
@@ -12,22 +13,22 @@ import java.awt.*;
 
 import static game.SudokuSettings.*;
 
-public class SudokuPanel extends JPanel implements SudokuGame {
-    private static final GridLayout SUDOKU_LAYOUT = new GridLayout(BOX_WIDTH.value, BOX_WIDTH.value);
+public class GameUI extends JPanel implements SudokuGame {
+    private static final GridLayout SUDOKU_LAYOUT = new GridLayout(BOX_WIDTH.getValue(), BOX_WIDTH.getValue());
     private static final int BORDER_PIXELS = 1;
     private static final Border DEFAULT_BORDER = LineBorder.createBlackLineBorder();
     private static final Border THICKER_BORDER = BorderFactory.createLineBorder(Color.black, BORDER_PIXELS + 2);
 
     private final JPanel[][] boxes;
-    private final SudokuButton[][] cells;
+    private final GameButton[][] cells;
     private final SudokuCellsPainter painter;
-    private final SudokuTracker gameTracker;
-    private SudokuButton selectedCell;
+    private GameButton selectedCell;
+    private SolutionTester solutionTester;
 
-    public SudokuPanel(SudokuTracker newGameTracker) {
-        gameTracker = newGameTracker;
-        boxes = new JPanel[BOX_WIDTH.value][BOX_WIDTH.value];
-        cells = new SudokuButton[BOARD_WIDTH.value][BOARD_WIDTH.value];
+    public GameUI(SolutionTester tester) {
+        solutionTester = tester;
+        boxes = new JPanel[BOX_WIDTH.getValue()][BOX_WIDTH.getValue()];
+        cells = new GameButton[BOARD_WIDTH.getValue()][BOARD_WIDTH.getValue()];
         painter = new SudokuCellsPainter(cells);
         setBoxes();
         setLayout(SUDOKU_LAYOUT);
@@ -36,20 +37,19 @@ public class SudokuPanel extends JPanel implements SudokuGame {
     }
 
     public void setCells() {
-        for (int i = 0; i < BOARD_WIDTH.value; i++) {
-            cells[i] = new SudokuButton[BOARD_WIDTH.value];
-            for (int j = 0; j < BOARD_WIDTH.value; j++) {
-                SudokuButton newCell = generateNewCell(i, j);
+        for (int i = 0; i < BOARD_WIDTH.getValue(); i++) {
+            cells[i] = new GameButton[BOARD_WIDTH.getValue()];
+            for (int j = 0; j < BOARD_WIDTH.getValue(); j++) {
+                GameButton newCell = generateNewCell(i, j);
                 cells[i][j] = newCell;
-                boxes[i / BOX_WIDTH.value][j / BOX_WIDTH.value].add(newCell);
+                boxes[i / BOX_WIDTH.getValue()][j / BOX_WIDTH.getValue()].add(newCell);
             }
         }
     }
 
-
     private void setBoxes() {
-        for (int i = 0; i < BOX_WIDTH.value; i++) {
-            boxes[i] = new JPanel[BOX_WIDTH.value];
+        for (int i = 0; i < BOX_WIDTH.getValue(); i++) {
+            boxes[i] = new JPanel[BOX_WIDTH.getValue()];
             for (int j = 0; j < boxes.length; j++) {
                 JPanel newBox = new JPanel();
                 boxes[i][j] = newBox;
@@ -60,14 +60,14 @@ public class SudokuPanel extends JPanel implements SudokuGame {
         }
     }
 
-    private SudokuButton generateNewCell(int i, int j) {
-        SudokuButton newCell = new SudokuButton(i, j);
+    private GameButton generateNewCell(int i, int j) {
+        GameButton newCell = new GameButton(i, j);
         newCell.setBorder(DEFAULT_BORDER);
         newCell.addActionListener(e -> {
             if (selectedCell != null) {
                 selectedCell.setBorder(DEFAULT_BORDER);
             }
-            selectedCell = (SudokuButton) e.getSource();
+            selectedCell = (GameButton) e.getSource();
             selectedCell.setBorder(THICKER_BORDER);
 
             painter.setSelectedCell(selectedCell.getRow(), selectedCell.getCol());
@@ -76,13 +76,14 @@ public class SudokuPanel extends JPanel implements SudokuGame {
         return newCell;
     }
 
-    public void updateBoard() throws UnsolvableSudokuException {
-        int[][] newBoard = gameTracker.getBoardCopy();
+    @Override
+    public void setAllCells(int[][] newBoard) {
+        solutionTester = new SolutionTester(newBoard);
         for (int i = 0; i < newBoard.length; i++) {
-            for (int j = 0; j < newBoard.length; j++) {
+            for (int j = 0; j < newBoard[i].length; j++) {
                 int value = newBoard[i][j];
                 undoCell(i, j);
-                if (value != EMPTY_CELL.value) {
+                if (value != EMPTY_CELL.getValue()) {
                     setCell(i, j, value);
                 }
             }
@@ -91,12 +92,11 @@ public class SudokuPanel extends JPanel implements SudokuGame {
 
     @Override
     public synchronized void undoCell(int i, int j) {
-        SudokuButton cell = cells[i][j];
-        if (gameTracker.isSolution(i, j, cell.getValue()))
+        GameButton cell = cells[i][j];
+        if (solutionTester != null && solutionTester.isSolution(i, j, cell.getValue()))
             return;
         cell.setModifiable();
         cell.undo();
-        gameTracker.undoCell(i, j);
     }
 
     public void undoCell() {
@@ -105,12 +105,11 @@ public class SudokuPanel extends JPanel implements SudokuGame {
 
     @Override
     public synchronized void setCell(int i, int j, int number) {
-        SudokuButton cellToModify = cells[i][j];
+        GameButton cellToModify = cells[i][j];
         cellToModify.setValue(number);
         cellToModify.setForeground(Color.black);
-        gameTracker.setCell(i, j, number);
 
-        if (!gameTracker.isSolution(i, j, number)) {
+        if (solutionTester != null && !solutionTester.isSolution(i, j, number)) {
             cellToModify.setForeground(Color.red);
         }
     }

@@ -3,7 +3,7 @@ package game.ui;
 import game.connection.Connecter;
 import game.connection.SudokuClient;
 import game.connection.SudokuServer;
-import game.ui.sudoku.panel.SudokuPanel;
+import game.ui.sudoku.panel.GameUI;
 import game.ui.sudoku.exceptions.UnsolvableSudokuException;
 import game.utils.SudokuGenerator;
 
@@ -14,12 +14,12 @@ import java.awt.event.ActionListener;
 import java.util.regex.Pattern;
 
 public class MainMenu extends JPanel {
-    private SudokuPanel board;
+    private GameUI board;
     private JButton startSessionButton;
     private JButton connectToSessionButton;
     private Connecter connecter;
 
-    public MainMenu(SudokuPanel newBoard) {
+    public MainMenu(GameUI newBoard) {
         Pattern ipPattern = Pattern.compile("^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$");
         setLayout(new GridLayout(0, 1));
         board = newBoard;

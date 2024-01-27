@@ -5,15 +5,13 @@ import game.ui.sudoku.cell.SudokuCell;
 import javax.swing.*;
 import java.awt.*;
 
-public class SudokuButton extends JButton implements SudokuCell {
-    private static final int EMPTY = 0;
-
-    private int row;
-    private int col;
+public class GameButton extends JButton implements SudokuCell {
+    private final int row;
+    private final int col;
     private int value;
     private boolean modifiable;
 
-    public SudokuButton(int newRow, int newCol) {
+    public GameButton(int newRow, int newCol) {
         row = newRow;
         col = newCol;
         modifiable = true;
@@ -65,7 +63,7 @@ public class SudokuButton extends JButton implements SudokuCell {
     }
 
 
-    public void addNote(int number) throws NullPointerException {
+    public void addNote(int number) {
         if (!modifiable)
             return;
 

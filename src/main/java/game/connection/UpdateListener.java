@@ -1,7 +1,7 @@
 package game.connection;
 
 
-import game.ui.sudoku.panel.SudokuPanel;
+import game.ui.sudoku.panel.GameUI;
 import game.ui.sudoku.exceptions.UnsolvableSudokuException;
 
 import java.io.IOException;
@@ -23,10 +23,10 @@ public class UpdateListener implements Runnable {
     }
 
     InputStream sharingStream;
-    SudokuPanel boardToUpdate;
+    GameUI boardToUpdate;
     int lastOptionReceived;
 
-    public UpdateListener(InputStream in, SudokuPanel board) {
+    public UpdateListener(InputStream in, GameUI board) {
         sharingStream = in;
         boardToUpdate = board;
     }

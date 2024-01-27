@@ -1,6 +1,6 @@
 package game.ui;
 
-import game.ui.sudoku.panel.SudokuPanel;
+import game.ui.sudoku.panel.GameUI;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -9,18 +9,17 @@ import java.awt.event.ActionListener;
 
 public class SudokuKeypad extends JPanel {
     private static final int SIZE = 9;
+    private static final int BORDER_WIDTH = 4;
 
-    private SudokuPanel sudokuGame;
+    private GameUI sudokuGame;
     private boolean notesMode;
-    private Border notesModeOnBorder;
-    private Border notesModeOffBorder;
-    private JButton notesButton;
-    private JButton undoButton;
+    private final static Border notesModeOnBorder = BorderFactory.createLineBorder(Color.red, BORDER_WIDTH);
+    private final static Border notesModeOffBorder = BorderFactory.createLineBorder(Color.green, BORDER_WIDTH);
+    private final JButton notesButton;
+    private final JButton undoButton;
 
     public SudokuKeypad() {
-        notesMode = false;
-        notesModeOffBorder = BorderFactory.createLineBorder(Color.red, 5);
-        notesModeOnBorder = BorderFactory.createLineBorder(Color.green, 5);
+        setLayout(new FlowLayout());
         undoButton = new JButton("Undo");
         undoButton.addActionListener(e -> sudokuGame.undoCell());
         add(undoButton);
@@ -34,21 +33,21 @@ public class SudokuKeypad extends JPanel {
                 notesButton.setBorder(notesModeOffBorder);
             }
         });
+
         add(notesButton);
-        setLayout(new FlowLayout());
         for (int i = 1; i <= SIZE; i++) {
             JButton newButton = new JButton(i + "");
             add(newButton);
         }
     }
 
-    public SudokuKeypad(SudokuPanel sudokuGame) {
+    public SudokuKeypad(GameUI sudokuGame) {
         this();
         setSudokuGame(sudokuGame);
     }
 
 
-    public void setSudokuGame(SudokuPanel sudokuGame) {
+    public void setSudokuGame(GameUI sudokuGame) {
         if(sudokuGame == null)
            return;
 
@@ -63,12 +62,13 @@ public class SudokuKeypad extends JPanel {
         };
 
         Component[] buttons = getComponents();
-        for (int i = 0; i < buttons.length; i++) {
-            JButton button = (JButton) buttons[i];
-            if(button.getText().matches("^[1-9]$")) {
-                button.addActionListener(buttonListener);
+        for (Component button : buttons) {
+            JButton castedButton = (JButton) button;
+            if(castedButton.getText().matches("^[1-9]$")) {
+                castedButton.addActionListener(buttonListener);
             }
         }
+
         this.sudokuGame = sudokuGame;
     }
 }

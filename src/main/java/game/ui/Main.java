@@ -1,18 +1,18 @@
 package game.ui;
 
-import game.ui.sudoku.panel.SudokuPanel;
+import game.ui.sudoku.panel.GameUI;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class Main extends JFrame {
-    SudokuPanel board;
+    GameUI board;
     SudokuKeypad mainKeypad;
     MainMenu mainMenu;
 
     Main() {
         Container pane = getContentPane();
-        board = new SudokuPanel();
+        board = new GameUI();
         mainKeypad = new SudokuKeypad(board);
         mainMenu = new MainMenu(board);
 
