@@ -11,24 +11,33 @@ import java.awt.event.ActionListener;
 public abstract class ListenersFactory {
     Connecter connecter;
     GameUI gameUi;
+
     public ListenersFactory(GameUI ui) {
         gameUi = ui;
     }
+
     abstract ActionListener createCloseListener();
+
     abstract ActionListener createOpenListener();
-    protected void setAsServer() {
+
+    protected void startConnection() {
         connecter = new SudokuServer(gameUi);
-    }
-    protected void setAsClient(String address) {
-        connecter = new SudokuClient(address,gameUi);
+        connecter.startConnection();
     }
 
-    protected Connecter getConnecter() {
-        return connecter;
+    protected void startConnection(String address) {
+        connecter = new SudokuClient(address, gameUi);
+        connecter.startConnection();
+    }
+
+    public void endConnection() {
+        if (connecter != null) {
+            connecter.endConnection();
+        }
     }
 
     protected void removeButtonListeners(JButton button) {
-        for(ActionListener listener : button.getActionListeners()) {
+        for (ActionListener listener : button.getActionListeners()) {
             button.removeActionListener(listener);
         }
     }

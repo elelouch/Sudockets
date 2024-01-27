@@ -35,8 +35,6 @@ public class SudokuCellsPainter implements CellsPainter {
         int col = selectedCell.getCol();
         int boxRowLowerBound = row / BOX_WIDTH.getValue();
         int boxColLowerBound = col / BOX_WIDTH.getValue();
-        int boxRowUpperBound = boxRowLowerBound + boxWidth;
-        int boxColUpperBound = boxColLowerBound + boxWidth;
 
         for (int k = 0; k < BOARD_WIDTH.getValue(); k++) {
             if (k / boxWidth != boxColLowerBound) {
@@ -46,11 +44,16 @@ public class SudokuCellsPainter implements CellsPainter {
                 paintCellAndAddToStack(cells[k][col]);
             }
         }
-        for (int i = boxRowLowerBound; i < boxRowUpperBound; i++) {
-            for (int j = boxColLowerBound; j < boxColUpperBound; j++) {
+
+        boxRowLowerBound *= BOX_WIDTH.getValue();
+        boxColLowerBound *= BOX_WIDTH.getValue();
+
+        for (int i = boxRowLowerBound; i < boxRowLowerBound + 3; i++) {
+            for (int j = boxColLowerBound; j < boxColLowerBound + 3; j++) {
                 paintCellAndAddToStack(cells[i][j]);
             }
         }
+
     }
 
     public void setSelectedCell(int i, int j) {
@@ -59,7 +62,7 @@ public class SudokuCellsPainter implements CellsPainter {
 
     @Override
     public void paintCells() {
-        if(selectedCell == null)
+        if (selectedCell == null)
             return;
         unpaintCells();
         paintCellsBasedOnSelectedCell();

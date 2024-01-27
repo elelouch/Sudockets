@@ -157,7 +157,7 @@ public class GameUI extends JPanel implements SudokuGame, SudokuGameObserver {
     }
 
     @Override
-    public void desuscribe(SudokuGame game) {
+    public void unsuscribe(SudokuGame game) {
         spectators.remove(game);
     }
 }

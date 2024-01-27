@@ -42,7 +42,7 @@ public class SudokuServer implements Connecter {
                 client.getOutputStream().close();
                 client.close();
                 server.close();
-                board.desuscribe(sender);
+                board.unsuscribe(sender);
             }
         } catch (IOException e) {
             e.printStackTrace();

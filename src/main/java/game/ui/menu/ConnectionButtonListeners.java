@@ -11,15 +11,14 @@ public class ConnectionButtonListeners extends ListenersFactory {
     private ActionListener closer;
     private ActionListener opener;
 
-    ConnectionButtonListeners(JTextArea userInput, GameUI gameUI) {
+    ConnectionButtonListeners(JTextField userInput, GameUI gameUI) {
         super(gameUI);
         opener = e ->{
             String address = userInput.getText();
             JButton button = (JButton) e.getSource();
             if(ipPattern.matcher(address).matches()) {
-                setAsClient(address);
+                startConnection(address);
                 button.setText("Connection created!, click again to stop connection");
-                getConnecter().startConnection();
                 removeButtonListeners(button);
                 button.addActionListener(closer);
                 return;
@@ -29,7 +28,7 @@ public class ConnectionButtonListeners extends ListenersFactory {
 
         closer = e -> {
             JButton button = (JButton) e.getSource();
-            getConnecter().endConnection();
+            endConnection();
             button.setText("Connection finished, click again to start a connection");
             removeButtonListeners(button);
             button.addActionListener(opener);

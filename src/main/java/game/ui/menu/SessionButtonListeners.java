@@ -14,15 +14,14 @@ public class SessionButtonListeners extends ListenersFactory{
         opener = e -> {
             JButton button = (JButton) e.getSource();
             button.setText("Waiting for connection");
-            setAsServer();
-            getConnecter().startConnection();
+            startConnection();
             button.setText("Connection ready, click again to stop connection");
             removeButtonListeners(button);
             button.addActionListener(closer);
         };
 
         closer = e -> {
-            getConnecter().endConnection();
+            endConnection();
             JButton button = (JButton) e.getSource();
             removeButtonListeners(button);
             button.setText("Start server");

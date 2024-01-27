@@ -7,11 +7,11 @@ import java.util.*;
 public class SudokuGenerator {
     private static final int PAIR = 2;
     private static int[][] cellsAvailable;
-    private static int cellsAvailableSize = CELLS_AMOUNT.value;
+    private static int cellsAvailableSize = CELLS_AMOUNT.getValue();
 
     static {
-        int size = BOARD_WIDTH.value;
-        cellsAvailable = new int[CELLS_AMOUNT.value][PAIR];
+        int size = BOARD_WIDTH.getValue();
+        cellsAvailable = new int[CELLS_AMOUNT.getValue()][PAIR];
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 cellsAvailable[i * size + j][0] = i;
@@ -21,7 +21,7 @@ public class SudokuGenerator {
     }
 
     public static int[][] generateSudokuAndShuffleCells() {
-        int size = BOARD_WIDTH.value;
+        int size = BOARD_WIDTH.getValue();
         int[][] allowed = new int[size][size];
         int[][] newSudoku = new int[size][size];
 
@@ -51,7 +51,7 @@ public class SudokuGenerator {
                 newSudoku[x][y] = 0;
             }
         }
-        cellsAvailableSize = CELLS_AMOUNT.value;
+        cellsAvailableSize = CELLS_AMOUNT.getValue();
         return newSudoku;
     }
 

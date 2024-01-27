@@ -2,7 +2,6 @@ package game.connection;
 
 
 import game.ui.sudoku.panel.GameUI;
-import game.ui.sudoku.exceptions.UnsolvableSudokuException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -70,10 +69,10 @@ public class UpdateListener implements Runnable {
     public int[][] parseFullUpdate() throws IOException {
         int size = BOARD_WIDTH.getValue();
         int[][] sudoku = new int[size][size];
-        for(int[] row : sudoku) {
-            row = new int[size];
+        for(int i = 0; i < size; i++) {
+            sudoku[i] = new int[size];
             for (int j = 0; j < size; j++) {
-                row[j] = sharingStream.read();
+                sudoku[i][j] = sharingStream.read();
             }
         }
         return sudoku;

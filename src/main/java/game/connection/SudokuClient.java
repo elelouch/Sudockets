@@ -37,7 +37,7 @@ public class SudokuClient implements Connecter {
                 clientSocket.getOutputStream().close();
                 clientSocket.getInputStream().close();
                 clientSocket.close();
-                board.desuscribe(sender);
+                board.unsuscribe(sender);
             } catch (IOException e) {
                 System.err.println("Socket is already closed");
                 e.printStackTrace();
