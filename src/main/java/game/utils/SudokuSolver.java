@@ -1,4 +1,4 @@
-package game.sudoku;
+package game.utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,15 +21,15 @@ public class SudokuSolver {
 
     private static int[][] deepCopy(int[][] arr) {
         return new int[][]{
-                Arrays.copyOf(arr[0], BOARD_WIDTH.value),
-                Arrays.copyOf(arr[1], BOARD_WIDTH.value),
-                Arrays.copyOf(arr[2], BOARD_WIDTH.value),
-                Arrays.copyOf(arr[3], BOARD_WIDTH.value),
-                Arrays.copyOf(arr[4], BOARD_WIDTH.value),
-                Arrays.copyOf(arr[5], BOARD_WIDTH.value),
-                Arrays.copyOf(arr[6], BOARD_WIDTH.value),
-                Arrays.copyOf(arr[7], BOARD_WIDTH.value),
-                Arrays.copyOf(arr[8], BOARD_WIDTH.value),
+                Arrays.copyOf(arr[0], BOARD_WIDTH.getValue()),
+                Arrays.copyOf(arr[1], BOARD_WIDTH.getValue()),
+                Arrays.copyOf(arr[2], BOARD_WIDTH.getValue()),
+                Arrays.copyOf(arr[3], BOARD_WIDTH.getValue()),
+                Arrays.copyOf(arr[4], BOARD_WIDTH.getValue()),
+                Arrays.copyOf(arr[5], BOARD_WIDTH.getValue()),
+                Arrays.copyOf(arr[6], BOARD_WIDTH.getValue()),
+                Arrays.copyOf(arr[7], BOARD_WIDTH.getValue()),
+                Arrays.copyOf(arr[8], BOARD_WIDTH.getValue()),
         };
     }
 
@@ -37,12 +37,12 @@ public class SudokuSolver {
         int mask = ~BIT_REPRE[val];
         sudoku[x][y] = val;
         allowed[x][y] = 0;
-        for (int i = 0; i < BOARD_WIDTH.value; i++) {
+        for (int i = 0; i < BOARD_WIDTH.getValue(); i++) {
             allowed[x][i] &= mask;
             allowed[i][y] &= mask;
         }
-        for (int i = 0; i < BOX_WIDTH.value; i++) {
-            for (int j = 0; j < BOX_WIDTH.value; j++) {
+        for (int i = 0; i < BOX_WIDTH.getValue(); i++) {
+            for (int j = 0; j < BOX_WIDTH.getValue(); j++) {
                 allowed[x / 3 * 3 + i][y / 3 * 3 + j] &= mask;
             }
         }
@@ -50,7 +50,7 @@ public class SudokuSolver {
 
     public static final List<int[][]> solveSudoku(int[][] sudoku) {
         int[][] gameCopy = deepCopy(sudoku);
-        int[][] allowedCopy = new int[BOARD_WIDTH.value][BOARD_WIDTH.value];
+        int[][] allowedCopy = new int[BOARD_WIDTH.getValue()][BOARD_WIDTH.getValue()];
 
         for (int[] allowed : allowedCopy) {
             Arrays.fill(allowed, 511);
@@ -59,7 +59,7 @@ public class SudokuSolver {
         int count = 0;
         for (int i = 0; i < gameCopy.length; i++) {
             for (int j = 0; j < gameCopy[i].length; j++) {
-                if (sudoku[i][j] != EMPTY_CELL.value) {
+                if (sudoku[i][j] != EMPTY_CELL.getValue()) {
                     placeNumber(gameCopy, allowedCopy, i, j, sudoku[i][j]);
                     count++;
                 }
@@ -149,8 +149,8 @@ public class SudokuSolver {
     private static int[] findSingle(int[][] allowed, int x, int y, int val) {
         int[] pair = new int[]{-1, -1};
         int bitval = BIT_REPRE[val];
-        for (int i = 0; i < BOX_WIDTH.value; i++) {
-            for (int j = 0; j < BOX_WIDTH.value; j++) {
+        for (int i = 0; i < BOX_WIDTH.getValue(); i++) {
+            for (int j = 0; j < BOX_WIDTH.getValue(); j++) {
                 if ((allowed[i + x][j + y] & bitval) > 0) {
                     if (pair[0] < 0) {
                         pair[0] = i + x;
@@ -169,7 +169,7 @@ public class SudokuSolver {
         List<int[][]> solutions = new ArrayList<>();
         for (int i = 0; i < sudoku.length; i++) {
             for (int j = 0; j < sudoku.length; j++) {
-                if (sudoku[i][j] == EMPTY_CELL.value) {
+                if (sudoku[i][j] == EMPTY_CELL.getValue()) {
                     for (int val = 1; val <= sudoku.length; val++) {
                         int bitval = BIT_REPRE[val];
                         if ((allowed[i][j] & bitval) > 0) {
@@ -193,11 +193,11 @@ public class SudokuSolver {
         List<int[][]> solutions = new ArrayList<>();
         placed += fillEasyValues(sudoku, allowed);
 
-        if (placed < CELLS_AMOUNT.value) {
+        if (placed < CELLS_AMOUNT.getValue()) {
             solutions.addAll(bruteForceBoard(sudoku, allowed, placed));
         }
 
-        if (placed == CELLS_AMOUNT.value) {
+        if (placed == CELLS_AMOUNT.getValue()) {
             solutions.add(sudoku);
         }
 

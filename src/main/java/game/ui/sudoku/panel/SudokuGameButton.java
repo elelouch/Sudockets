@@ -1,20 +1,18 @@
-package game.ui;
+package game.ui.sudoku.panel;
+
+import game.ui.sudoku.cell.SudokuCell;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class SudokuCell extends JButton {
-    private static final int EMPTY = 0;
-
-    private int row;
-    private int col;
+public class SudokuGameButton extends JButton implements SudokuCell {
+    private final int row;
+    private final int col;
     private int value;
-    private boolean modifiable;
 
-    public SudokuCell(int newRow, int newCol) {
+    public SudokuGameButton(int newRow, int newCol) {
         row = newRow;
         col = newCol;
-        modifiable = true;
         setFont(new Font("monospaced", Font.BOLD, 30));
         setFocusPainted(true);
         setContentAreaFilled(false);
@@ -22,12 +20,29 @@ public class SudokuCell extends JButton {
         setBackground(Color.white);
     }
 
-    public void setUnmodifiable() {
-        modifiable = false;
+    @Override
+    public boolean isEmpty() {
+        return value == 0 && getText().isEmpty();
     }
 
-    public void setModifiable() {
-        modifiable = true;
+    @Override
+    public void setValue(int val) {
+        if (!isEmpty() && 1 <= val && val <= 9) {
+            removeAll();
+            value = val;
+            setText(val + "");
+        }
+    }
+
+    @Override
+    public int getValue() {
+        return value;
+    }
+
+    @Override
+    public void undo() {
+        setText("");
+        value = 0;
     }
 
     public int getCol() {
@@ -38,21 +53,13 @@ public class SudokuCell extends JButton {
         return row;
     }
 
-    public void undo() {
-        if(!modifiable)
-            return;
-
-        setText("");
-        value = 0;
-    }
-
-    public void addNote(int number) throws NullPointerException {
-        if (!modifiable)
+    public void addNote(int number) {
+        if (!isEmpty())
             return;
 
         addNotesIfNotAdded();
 
-        Component desiredLabel = getComponent(number-1);
+        Component desiredLabel = getComponent(number - 1);
         JLabel label = (JLabel) desiredLabel;
         if (label.getText().isEmpty()) {
             label.setText(number + "");
@@ -69,7 +76,7 @@ public class SudokuCell extends JButton {
         if (hasNotes())
             return;
 
-        setLayout(new GridLayout(3,3));
+        setLayout(new GridLayout(3, 3));
         for (int i = 0; i < 9; i++) {
             Font italicFont = new Font("monospaced", Font.ITALIC, 15);
             JLabel newLabel = new JLabel();
@@ -78,15 +85,4 @@ public class SudokuCell extends JButton {
         }
     }
 
-    public void setValue(int val) {
-        if(1 <= val && val <= 9 && modifiable) {
-            removeAll();
-            setUnmodifiable();
-            value = val;
-            setText(val + "");
-        }
-    }
-    public int getValue() {
-        return value;
-    }
 }

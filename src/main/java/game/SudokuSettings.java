@@ -6,8 +6,13 @@ public enum SudokuSettings {
     EMPTY_CELL(0),
     CELLS_AMOUNT(81);
 
-    public int value;
+    private int value;
+
     SudokuSettings(int val) {
         value = val;
+    }
+
+    public int getValue() {
+        return value;
     }
 }
