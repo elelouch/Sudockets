@@ -15,6 +15,7 @@ public class Main extends JFrame {
     Main() {
         Container pane = getContentPane();
         board = new GameUI(SudokuGenerator.generateUniqueSudoku());
+        System.out.println("Game successfully started");
         mainKeypad = new SudokuKeypad(board);
         mainMenu = new MainMenu(board);
 

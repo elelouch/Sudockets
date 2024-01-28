@@ -33,8 +33,7 @@ public class UpdateListener implements Runnable {
     @Override
     public void run() {
         try {
-            while (true) {
-                lastOptionReceived = sharingStream.read();
+            while ((lastOptionReceived = sharingStream.read()) != -1) {
                 parseBufferAndUpdateBoard();
             }
         } catch (IOException e) {
@@ -42,9 +41,8 @@ public class UpdateListener implements Runnable {
         }
     }
 
-    public void parseBufferAndUpdateBoard() throws IOException {
+    private void parseBufferAndUpdateBoard() throws IOException {
         int i, j, number;
-
         switch (options.get(lastOptionReceived)) {
             case UPDATE:
                 i = sharingStream.read();

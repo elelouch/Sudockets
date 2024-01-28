@@ -6,7 +6,7 @@ public enum Updates {
     FULL_UPDATE(2),
     END_CONNECTION(3);
 
-    private int value;
+    private final int value;
 
     Updates(int val) {
         value = val;

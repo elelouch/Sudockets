@@ -3,49 +3,51 @@ package game.connection;
 import game.ui.sudoku.panel.GameUI;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class SudokuServer implements Connecter {
+public class SudokuServer {
     private static final int PORT = 31145;
-    private ServerSocket server;
-    private Socket client;
-    private Thread listenerThread;
-    private GameUI board;
-    private UpdateSender sender;
+    private static Thread serverThread = null;
 
-    public SudokuServer(GameUI newBoard) {
-        try {
-            board = newBoard;
-            server = new ServerSocket(PORT);
-            client = server.accept();
-            UpdateListener listener = new UpdateListener(client.getInputStream(), board);
-            listenerThread = new Thread(listener);
-            sender = new UpdateSender(client.getOutputStream());
-            board.suscribe(sender);
-        } catch (IOException e) {
-            System.err.println("Couldn't connect to server");
-            e.printStackTrace();
-        }
-    }
+    public static void initializeServer(GameUI newBoard) {
+        if(serverThread != null)
+            return;
 
-    @Override
-    public void startConnection() {
-        listenerThread.start();
-    }
-
-    @Override
-    public void endConnection() {
-        try {
-            if (server != null) {
-                client.getInputStream().close();
-                client.getOutputStream().close();
-                client.close();
-                server.close();
-                board.unsuscribe(sender);
+        Thread serverThread = new Thread(() -> {
+            UpdateSender sender = null;
+            try (ServerSocket server = new ServerSocket(PORT);
+                 Socket client = server.accept();
+                 InputStream in = client.getInputStream();
+                 OutputStream out = client.getOutputStream()) {
+                sender = new UpdateSender(out);
+                newBoard.subscribe(sender);
+                newBoard.notifyFullUpdate();
+                Thread listenerThread = new Thread(new UpdateListener(in, newBoard));
+                listenerThread.start();
+                try {
+                    listenerThread.join();
+                } catch (InterruptedException e) {
+                    System.err.println("Thread was interrupted while waiting for thread " + listenerThread.getId());
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (sender != null){
+                    newBoard.unSubscribe(sender);
+                }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        });
+        serverThread.start();
+    }
+
+    public static void finalizeServer() {
+        if (serverThread != null){
+            serverThread.interrupt();
+            serverThread = null;
         }
     }
+
 }

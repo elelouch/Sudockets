@@ -53,7 +53,6 @@ public class SudokuCellsPainter implements CellsPainter {
                 paintCellAndAddToStack(cells[i][j]);
             }
         }
-
     }
 
     public void setSelectedCell(int i, int j) {
@@ -62,8 +61,9 @@ public class SudokuCellsPainter implements CellsPainter {
 
     @Override
     public void paintCells() {
-        if (selectedCell == null)
+        if (selectedCell == null) {
             return;
+        }
         unpaintCells();
         paintCellsBasedOnSelectedCell();
     }

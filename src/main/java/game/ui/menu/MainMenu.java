@@ -1,13 +1,11 @@
 package game.ui.menu;
 
-import game.connection.Connecter;
 import game.ui.sudoku.panel.GameUI;
 import game.utils.SudokuGenerator;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
-import java.awt.event.ActionListener;
 
 public class MainMenu extends JPanel {
 
@@ -15,15 +13,21 @@ public class MainMenu extends JPanel {
         JButton startSessionButton = new JButton("Start session");
         JButton connectToSessionButton = new JButton("Connect to session");
         JTextField ipAddressInput = new JTextField("Insert IP session");
-        setLayout(new GridLayout(0, 1));
         ipAddressInput.setBorder(LineBorder.createBlackLineBorder());
-        SessionButtonListeners sessionListeners = new SessionButtonListeners(newBoard);
+
+        setLayout(new GridLayout(0, 1));
+
+        SessionListeners sessionListeners = new SessionListeners(newBoard);
         startSessionButton.addActionListener(sessionListeners.createOpenListener());
         startSessionButton.addActionListener(sessionListeners.createCloseListener());
-        ConnectionButtonListeners connectionListeners =
-                new ConnectionButtonListeners(ipAddressInput, newBoard);
+
+        ConnectionListeners connectionListeners =
+                new ConnectionListeners(ipAddressInput, newBoard);
         connectToSessionButton.addActionListener(connectionListeners.createOpenListener());
         connectToSessionButton.addActionListener(connectionListeners.createCloseListener());
+
+        connectToSessionButton.addActionListener(e -> ListenersFactory.removeButtonListeners(startSessionButton));
+        startSessionButton.addActionListener(e -> ListenersFactory.removeButtonListeners(connectToSessionButton));
 
         JButton generateNewBoardButton = new JButton("Generate new sudoku");
         generateNewBoardButton.addActionListener(e -> newBoard.setAllCells(SudokuGenerator.generateUniqueSudoku()));
@@ -33,4 +37,6 @@ public class MainMenu extends JPanel {
         add(connectToSessionButton);
         add(startSessionButton);
     }
+
+
 }

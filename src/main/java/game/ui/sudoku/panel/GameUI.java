@@ -82,7 +82,7 @@ public class GameUI extends JPanel implements SudokuGame, SudokuGameObserver {
     }
 
     @Override
-    public void setAllCells(int[][] newBoard) {
+    public synchronized void setAllCells(int[][] newBoard) {
         solutionHolder = new SolutionHolder(newBoard);
         for (int i = 0; i < newBoard.length; i++) {
             for (int j = 0; j < newBoard[i].length; j++) {
@@ -151,13 +151,19 @@ public class GameUI extends JPanel implements SudokuGame, SudokuGameObserver {
     }
 
     @Override
-    public void suscribe(SudokuGame game) {
-        game.setAllCells(getBoardCopy());
+    public void subscribe(SudokuGame game) {
         spectators.add(game);
     }
 
     @Override
-    public void unsuscribe(SudokuGame game) {
+    public void unSubscribe(SudokuGame game) {
         spectators.remove(game);
+    }
+
+    @Override
+    public void notifyFullUpdate() {
+        for (SudokuGame spectator : spectators) {
+            spectator.setAllCells(getBoardCopy());
+        }
     }
 }

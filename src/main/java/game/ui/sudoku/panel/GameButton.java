@@ -24,7 +24,7 @@ public class GameButton extends JButton implements SudokuCell {
 
     @Override
     public boolean isEmpty() {
-        return value == 0;
+        return value == 0 && getText().isEmpty();
     }
 
     @Override

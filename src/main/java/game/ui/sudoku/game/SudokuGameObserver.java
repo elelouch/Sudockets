@@ -1,6 +1,7 @@
 package game.ui.sudoku.game;
 
 public interface SudokuGameObserver {
-    void suscribe(SudokuGame game);
-    void unsuscribe(SudokuGame game);
+    void subscribe(SudokuGame game);
+    void unSubscribe(SudokuGame game);
+    void notifyFullUpdate();
 }
