@@ -18,7 +18,7 @@ public class ConnectionListeners implements ListenersFactory {
             JButton button = (JButton) e.getSource();
             if(ipPattern.matcher(address).matches()) {
                 SudokuClient.initializeClient(gameUI,address);
-                button.setText("Connection created!, click again to stop connection");
+                button.setText("Stop connection");
                 ListenersFactory.removeButtonListeners(button);
                 button.addActionListener(closer);
                 return;
@@ -29,7 +29,7 @@ public class ConnectionListeners implements ListenersFactory {
         closer = e -> {
             JButton button = (JButton) e.getSource();
             SudokuClient.finalizeClient();
-            button.setText("Connection finished, click again to start a connection");
+            button.setText("Start connection");
             ListenersFactory.removeButtonListeners(button);
             button.addActionListener(opener);
         };

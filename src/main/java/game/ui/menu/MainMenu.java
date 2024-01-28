@@ -11,8 +11,8 @@ public class MainMenu extends JPanel {
 
     public MainMenu(GameUI newBoard) {
         JButton startSessionButton = new JButton("Start session");
-        JButton connectToSessionButton = new JButton("Connect to session");
-        JTextField ipAddressInput = new JTextField("Insert IP session");
+        JButton connectToSessionButton = new JButton("Start connection");
+        JTextField ipAddressInput = new JTextField("Insert session IP");
         ipAddressInput.setBorder(LineBorder.createBlackLineBorder());
 
         setLayout(new GridLayout(0, 1));
