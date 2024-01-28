@@ -1,9 +1,10 @@
 package game.ui.sudoku.panel;
 
 import game.ui.painter.SudokuCellsPainter;
+import game.ui.sudoku.exceptions.UnsolvableSudokuException;
 import game.ui.sudoku.game.SudokuGame;
 import game.ui.sudoku.game.SudokuGameObserver;
-import game.ui.sudoku.SolutionHolder;
+import game.utils.SudokuSolver;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -14,7 +15,7 @@ import java.util.List;
 
 import static game.SudokuSettings.*;
 
-public class GameUI extends JPanel implements SudokuGame, SudokuGameObserver {
+public class SudokuGameUI extends JPanel implements SudokuGame, SudokuGameObserver {
     private static final GridLayout SUDOKU_LAYOUT = new GridLayout(BOX_WIDTH.getValue(),
             BOX_WIDTH.getValue());
     private static final int BORDER_PIXELS = 1;
@@ -24,29 +25,30 @@ public class GameUI extends JPanel implements SudokuGame, SudokuGameObserver {
 
     private final List<SudokuGame> spectators;
     private final JPanel[][] boxes;
-    private final GameButton[][] gameButtons;
+    private final SudokuGameButton[][] sudokuGameButtons;
     private final SudokuCellsPainter painter;
-    private GameButton selectedCell;
-    private SolutionHolder solutionHolder;
+    private SudokuGameButton selectedCell;
+    private int[][] solution;
 
-    public GameUI(int[][] newBoard) {
+    public SudokuGameUI(int[][] newBoard) {
         spectators = new ArrayList<>();
         boxes = new JPanel[BOX_WIDTH.getValue()][BOX_WIDTH.getValue()];
-        gameButtons = new GameButton[BOARD_WIDTH.getValue()][BOARD_WIDTH.getValue()];
-        painter = new SudokuCellsPainter(gameButtons);
+        sudokuGameButtons = new SudokuGameButton[BOARD_WIDTH.getValue()][BOARD_WIDTH.getValue()];
+        painter = new SudokuCellsPainter(sudokuGameButtons);
         setBoxes();
         setLayout(SUDOKU_LAYOUT);
         setCells();
+        setSolution(newBoard);
         setAllCells(newBoard);
         setVisible(true);
     }
 
     private void setCells() {
         for (int i = 0; i < BOARD_WIDTH.getValue(); i++) {
-            gameButtons[i] = new GameButton[BOARD_WIDTH.getValue()];
+            sudokuGameButtons[i] = new SudokuGameButton[BOARD_WIDTH.getValue()];
             for (int j = 0; j < BOARD_WIDTH.getValue(); j++) {
-                GameButton newCell = generateNewButton(i, j);
-                gameButtons[i][j] = newCell;
+                SudokuGameButton newCell = generateNewButton(i, j);
+                sudokuGameButtons[i][j] = newCell;
                 boxes[i / BOX_WIDTH.getValue()][j / BOX_WIDTH.getValue()].add(newCell);
             }
         }
@@ -65,14 +67,14 @@ public class GameUI extends JPanel implements SudokuGame, SudokuGameObserver {
         }
     }
 
-    private GameButton generateNewButton(int i, int j) {
-        GameButton newButton = new GameButton(i, j);
+    private SudokuGameButton generateNewButton(int i, int j) {
+        SudokuGameButton newButton = new SudokuGameButton(i, j);
         newButton.setBorder(DEFAULT_BORDER);
         newButton.addActionListener(e -> {
             if (selectedCell != null) {
                 selectedCell.setBorder(DEFAULT_BORDER);
             }
-            selectedCell = (GameButton) e.getSource();
+            selectedCell = (SudokuGameButton) e.getSource();
             selectedCell.setBorder(THICKER_BORDER);
 
             painter.setSelectedCell(selectedCell.getRow(), selectedCell.getCol());
@@ -83,25 +85,35 @@ public class GameUI extends JPanel implements SudokuGame, SudokuGameObserver {
 
     @Override
     public synchronized void setAllCells(int[][] newBoard) {
-        solutionHolder = new SolutionHolder(newBoard);
         for (int i = 0; i < newBoard.length; i++) {
             for (int j = 0; j < newBoard[i].length; j++) {
                 int value = newBoard[i][j];
-                undoCell(i, j);
                 if (value != EMPTY_CELL.getValue()) {
-                    setCell(i, j, value);
+                    sudokuGameButtons[i][j].setValue(value);
+                } else {
+                    sudokuGameButtons[i][j].undo();
                 }
             }
         }
     }
 
+
+    @Override
+    public synchronized void setSolution(int[][] board) {
+        List<int[][]> possibleSolutions = SudokuSolver.solveSudoku(board);
+        if (possibleSolutions.isEmpty()) {
+            throw new UnsolvableSudokuException("Sudoku must be solvable to set a solution");
+        }
+        solution = possibleSolutions.get(0);
+    }
+
     @Override
     public synchronized void undoCell(int i, int j) {
-        GameButton button = gameButtons[i][j];
-        if (button.isEmpty() || solutionHolder.isSolution(i, j, button.getValue())) {
+        SudokuGameButton button = sudokuGameButtons[i][j];
+        int valueSolution = solution[i][j];
+        if (button.isEmpty() || button.getValue() == valueSolution) {
             return;
         }
-        button.setModifiable();
         button.undo();
 
         for (SudokuGame spectator : spectators)
@@ -114,7 +126,8 @@ public class GameUI extends JPanel implements SudokuGame, SudokuGameObserver {
 
     @Override
     public synchronized void setCell(int i, int j, int number) {
-        GameButton buttonToModify = gameButtons[i][j];
+        SudokuGameButton buttonToModify = sudokuGameButtons[i][j];
+        int solutionValue = solution[i][j];
         if (buttonToModify.getValue() == number) {
             return;
         }
@@ -122,7 +135,7 @@ public class GameUI extends JPanel implements SudokuGame, SudokuGameObserver {
         buttonToModify.setValue(number);
         buttonToModify.setForeground(Color.black);
 
-        if (!solutionHolder.isSolution(i, j, number)) {
+        if (solutionValue != buttonToModify.getValue()) {
             buttonToModify.setForeground(Color.red);
         }
 
@@ -144,7 +157,7 @@ public class GameUI extends JPanel implements SudokuGame, SudokuGameObserver {
         for (int i = 0; i < size; i++) {
             boardCopy[i] = new int[size];
             for (int j = 0; j < size; j++) {
-                boardCopy[i][j] = gameButtons[i][j].getValue();
+                boardCopy[i][j] = sudokuGameButtons[i][j].getValue();
             }
         }
         return boardCopy;
@@ -166,4 +179,12 @@ public class GameUI extends JPanel implements SudokuGame, SudokuGameObserver {
             spectator.setAllCells(getBoardCopy());
         }
     }
+
+    @Override
+    public void notifySolution() {
+        for (SudokuGame spectator : spectators) {
+            spectator.setSolution(solution);
+        }
+    }
+
 }

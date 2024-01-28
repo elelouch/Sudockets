@@ -1,7 +1,7 @@
 package game.ui.menu;
 
-import game.connection.SudokuClient;
-import game.ui.sudoku.panel.GameUI;
+import game.connection.client.SudokuClient;
+import game.ui.sudoku.panel.SudokuGameUI;
 
 import javax.swing.*;
 import java.awt.event.ActionListener;
@@ -12,12 +12,12 @@ public class ConnectionListeners implements ListenersFactory {
     private ActionListener closer;
     private ActionListener opener;
 
-    ConnectionListeners(JTextField userInput, GameUI gameUI) {
+    ConnectionListeners(JTextField userInput, SudokuGameUI sudokuGameUI) {
         opener = e ->{
             String address = userInput.getText();
             JButton button = (JButton) e.getSource();
             if(ipPattern.matcher(address).matches()) {
-                SudokuClient.initializeClient(gameUI,address);
+                SudokuClient.initializeClient(sudokuGameUI,address);
                 button.setText("Stop connection");
                 ListenersFactory.removeButtonListeners(button);
                 button.addActionListener(closer);

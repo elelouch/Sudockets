@@ -5,16 +5,14 @@ import game.ui.sudoku.cell.SudokuCell;
 import javax.swing.*;
 import java.awt.*;
 
-public class GameButton extends JButton implements SudokuCell {
+public class SudokuGameButton extends JButton implements SudokuCell {
     private final int row;
     private final int col;
     private int value;
-    private boolean modifiable;
 
-    public GameButton(int newRow, int newCol) {
+    public SudokuGameButton(int newRow, int newCol) {
         row = newRow;
         col = newCol;
-        modifiable = true;
         setFont(new Font("monospaced", Font.BOLD, 30));
         setFocusPainted(true);
         setContentAreaFilled(false);
@@ -29,9 +27,8 @@ public class GameButton extends JButton implements SudokuCell {
 
     @Override
     public void setValue(int val) {
-        if (1 <= val && val <= 9 && modifiable) {
+        if (!isEmpty() && 1 <= val && val <= 9) {
             removeAll();
-            setUnmodifiable();
             value = val;
             setText(val + "");
         }
@@ -44,9 +41,6 @@ public class GameButton extends JButton implements SudokuCell {
 
     @Override
     public void undo() {
-        if (!modifiable)
-            return;
-
         setText("");
         value = 0;
     }
@@ -59,17 +53,8 @@ public class GameButton extends JButton implements SudokuCell {
         return row;
     }
 
-    public void setUnmodifiable() {
-        modifiable = false;
-    }
-
-    public void setModifiable() {
-        modifiable = true;
-    }
-
-
     public void addNote(int number) {
-        if (!modifiable)
+        if (!isEmpty())
             return;
 
         addNotesIfNotAdded();

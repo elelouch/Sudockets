@@ -1,29 +1,30 @@
-package game.connection;
+package game.connection.client;
 
-import game.ui.sudoku.panel.GameUI;
+import game.connection.updaters.SudokuUpdateSender;
+import game.connection.updaters.SudokuUpdateListener;
+import game.ui.sudoku.panel.SudokuGameUI;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.ServerSocket;
 import java.net.Socket;
 
 public class SudokuClient {
     private static final int PORT = 31145;
     private static Thread clientThread = null;
 
-    public static void initializeClient(GameUI newBoard, String address) {
+    public static void initializeClient(SudokuGameUI newBoard, String address) {
         if (clientThread != null)
             return;
 
-        Thread serverThread = new Thread(() -> {
-            UpdateSender sender = null;
-            try (Socket client = new Socket(address,PORT);
+        clientThread = new Thread(() -> {
+            SudokuUpdateSender sender = null;
+            try (Socket client = new Socket(address, PORT);
                  InputStream in = client.getInputStream();
                  OutputStream out = client.getOutputStream()) {
-                sender = new UpdateSender(out);
+                sender = new SudokuUpdateSender(out);
                 newBoard.subscribe(sender);
-                Thread listenerThread = new Thread(new UpdateListener(in, newBoard));
+                Thread listenerThread = new Thread(new SudokuUpdateListener(in, newBoard));
                 listenerThread.start();
                 try {
                     listenerThread.join();
@@ -39,7 +40,7 @@ public class SudokuClient {
                 clientThread = null;
             }
         });
-        serverThread.start();
+        clientThread.start();
     }
 
     public static void finalizeClient() {

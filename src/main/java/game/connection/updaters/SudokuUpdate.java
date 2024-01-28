@@ -1,14 +1,15 @@
-package game.connection;
+package game.connection.updaters;
 
-public enum Updates {
+public enum SudokuUpdate {
     UPDATE(0),
     UNDO(1),
     FULL_UPDATE(2),
-    END_CONNECTION(3);
+    SOLUTION(3),
+    END_CONNECTION(4);
 
     private final int value;
 
-    Updates(int val) {
+    SudokuUpdate(int val) {
         value = val;
     }
 

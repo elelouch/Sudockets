@@ -1,7 +1,7 @@
 package game.ui.menu;
 
-import game.connection.SudokuServer;
-import game.ui.sudoku.panel.GameUI;
+import game.connection.server.SudokuServer;
+import game.ui.sudoku.panel.SudokuGameUI;
 
 import javax.swing.*;
 import java.awt.event.ActionListener;
@@ -10,11 +10,11 @@ public class SessionListeners implements ListenersFactory{
     private ActionListener closer;
     private ActionListener opener;
 
-    SessionListeners(GameUI gameUI) {
+    SessionListeners(SudokuGameUI sudokuGameUI) {
         opener = e -> {
             JButton button = (JButton) e.getSource();
             button.setText("Waiting for connection");
-            SudokuServer.initializeServer(gameUI);
+            SudokuServer.initializeServer(sudokuGameUI);
             button.setText("Close server!");
             ListenersFactory.removeButtonListeners(button);
             button.addActionListener(closer);

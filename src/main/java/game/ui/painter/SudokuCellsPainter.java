@@ -1,6 +1,6 @@
 package game.ui.painter;
 
-import game.ui.sudoku.panel.GameButton;
+import game.ui.sudoku.panel.SudokuGameButton;
 
 import java.awt.*;
 import java.util.ArrayDeque;
@@ -10,11 +10,11 @@ import static game.SudokuSettings.BOX_WIDTH;
 
 public class SudokuCellsPainter implements CellsPainter {
     private static final int MAX_COLORED_CELLS = 21;
-    private final ArrayDeque<GameButton> paintedCells = new ArrayDeque<>(MAX_COLORED_CELLS);
-    private GameButton selectedCell;
-    private GameButton[][] cells;
+    private final ArrayDeque<SudokuGameButton> paintedCells = new ArrayDeque<>(MAX_COLORED_CELLS);
+    private SudokuGameButton selectedCell;
+    private SudokuGameButton[][] cells;
 
-    public SudokuCellsPainter(GameButton[][] cells) {
+    public SudokuCellsPainter(SudokuGameButton[][] cells) {
         this.cells = cells;
     }
 
@@ -24,7 +24,7 @@ public class SudokuCellsPainter implements CellsPainter {
         }
     }
 
-    private void paintCellAndAddToStack(GameButton cell) {
+    private void paintCellAndAddToStack(SudokuGameButton cell) {
         cell.setBackground(Color.lightGray);
         paintedCells.addLast(cell);
     }

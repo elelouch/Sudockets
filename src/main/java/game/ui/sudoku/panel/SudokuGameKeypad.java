@@ -1,36 +1,34 @@
-package game.ui;
-
-import game.ui.sudoku.panel.GameUI;
+package game.ui.sudoku.panel;
 
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.ActionListener;
 
-public class SudokuKeypad extends JPanel {
+public class SudokuGameKeypad extends JPanel {
     private static final int SIZE = 9;
     private static final int BORDER_WIDTH = 4;
 
-    private GameUI sudokuGame;
+    private SudokuGameUI sudokuGame;
     private boolean notesMode;
-    private final static Border notesModeOnBorder = BorderFactory.createLineBorder(Color.red, BORDER_WIDTH);
-    private final static Border notesModeOffBorder = BorderFactory.createLineBorder(Color.green, BORDER_WIDTH);
+    private final static Border NOTES_OFF = BorderFactory.createLineBorder(Color.red, BORDER_WIDTH);
+    private final static Border NOTES_ON = BorderFactory.createLineBorder(Color.green, BORDER_WIDTH);
     private final JButton notesButton;
     private final JButton undoButton;
 
-    public SudokuKeypad() {
+    public SudokuGameKeypad() {
         setLayout(new FlowLayout());
         undoButton = new JButton("Undo");
         undoButton.addActionListener(e -> sudokuGame.undoCell());
         add(undoButton);
         notesButton = new JButton("Notes");
-        notesButton.setBorder(notesModeOffBorder);
+        notesButton.setBorder(NOTES_OFF);
         notesButton.addActionListener(e -> {
             notesMode = !notesMode;
             if(notesMode) {
-                notesButton.setBorder(notesModeOnBorder);
+                notesButton.setBorder(NOTES_ON);
             } else {
-                notesButton.setBorder(notesModeOffBorder);
+                notesButton.setBorder(NOTES_OFF);
             }
         });
 
@@ -41,13 +39,13 @@ public class SudokuKeypad extends JPanel {
         }
     }
 
-    public SudokuKeypad(GameUI sudokuGame) {
+    public SudokuGameKeypad(SudokuGameUI sudokuGame) {
         this();
         setSudokuGame(sudokuGame);
     }
 
 
-    public void setSudokuGame(GameUI sudokuGame) {
+    public void setSudokuGame(SudokuGameUI sudokuGame) {
         if(sudokuGame == null)
            return;
 

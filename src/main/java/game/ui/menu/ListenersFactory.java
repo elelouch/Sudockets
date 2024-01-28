@@ -1,7 +1,5 @@
 package game.ui.menu;
 
-import game.ui.sudoku.panel.GameUI;
-
 import javax.swing.*;
 import java.awt.event.ActionListener;
 

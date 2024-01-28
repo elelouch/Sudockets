@@ -1,15 +1,15 @@
 package game.ui.menu;
 
-import game.ui.sudoku.panel.GameUI;
+import game.ui.sudoku.panel.SudokuGameUI;
 import game.utils.SudokuGenerator;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
 
-public class MainMenu extends JPanel {
+public class SudokuMainMenu extends JPanel {
 
-    public MainMenu(GameUI newBoard) {
+    public SudokuMainMenu(SudokuGameUI newBoard) {
         JButton startSessionButton = new JButton("Start session");
         JButton connectToSessionButton = new JButton("Start connection");
         JTextField ipAddressInput = new JTextField("Insert session IP");

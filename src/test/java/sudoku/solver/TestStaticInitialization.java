@@ -1,7 +1,7 @@
 package sudoku.solver;
 
 
-import game.connection.UpdateListener;
+import game.connection.updaters.SudokuUpdateListener;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -9,7 +9,7 @@ public class TestStaticInitialization {
 
     @Test
     public void testInitialization() {
-        Assertions.assertNotNull(UpdateListener.byteToOptions);
-        Assertions.assertEquals(UpdateListener.byteToOptions.size(), 4);
+        Assertions.assertNotNull(SudokuUpdateListener.byteToOptions);
+        Assertions.assertEquals(SudokuUpdateListener.byteToOptions.size(), 4);
     }
 }
