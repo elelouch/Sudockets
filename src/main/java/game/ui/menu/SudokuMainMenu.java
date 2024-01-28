@@ -18,16 +18,10 @@ public class SudokuMainMenu extends JPanel {
         setLayout(new GridLayout(0, 1));
 
         SessionListeners sessionListeners = new SessionListeners(newBoard);
-        startSessionButton.addActionListener(sessionListeners.createOpenListener());
-        startSessionButton.addActionListener(sessionListeners.createCloseListener());
+        startSessionButton.addActionListener(sessionListeners.createListener());
 
-        ConnectionListeners connectionListeners =
-                new ConnectionListeners(ipAddressInput, newBoard);
-        connectToSessionButton.addActionListener(connectionListeners.createOpenListener());
-        connectToSessionButton.addActionListener(connectionListeners.createCloseListener());
-
-        connectToSessionButton.addActionListener(e -> ListenersFactory.removeButtonListeners(startSessionButton));
-        startSessionButton.addActionListener(e -> ListenersFactory.removeButtonListeners(connectToSessionButton));
+        ConnectionListeners connectionListeners = new ConnectionListeners(ipAddressInput, newBoard);
+        connectToSessionButton.addActionListener(connectionListeners.createListener());
 
         JButton generateNewBoardButton = new JButton("Generate new sudoku");
         generateNewBoardButton.addActionListener(e -> newBoard.setAllCells(SudokuGenerator.generateUniqueSudoku()));

@@ -23,7 +23,7 @@ public class ConnectionListeners implements ListenersFactory {
                 button.addActionListener(closer);
                 return;
             }
-            button.setText("Address must be valid");
+            button.setText("Address must be valid, try again");
         };
 
         closer = e -> {
@@ -37,12 +37,8 @@ public class ConnectionListeners implements ListenersFactory {
 
 
     @Override
-    public ActionListener createCloseListener() {
-        return closer;
-    }
-
-    @Override
-    public ActionListener createOpenListener() {
+    public ActionListener createListener() {
         return opener;
     }
+
 }

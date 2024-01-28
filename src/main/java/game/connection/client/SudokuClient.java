@@ -9,8 +9,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
+import static game.SudokuSettings.SERVER_PORT;
+
 public class SudokuClient {
-    private static final int PORT = 31145;
     private static Thread clientThread = null;
 
     public static void initializeClient(SudokuGameUI newBoard, String address) {
@@ -19,7 +20,7 @@ public class SudokuClient {
 
         clientThread = new Thread(() -> {
             SudokuUpdateSender sender = null;
-            try (Socket client = new Socket(address, PORT);
+            try (Socket client = new Socket(address, SERVER_PORT.getValue());
                  InputStream in = client.getInputStream();
                  OutputStream out = client.getOutputStream()) {
                 sender = new SudokuUpdateSender(out);

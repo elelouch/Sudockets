@@ -87,12 +87,8 @@ public class SudokuGameUI extends JPanel implements SudokuGame, SudokuGameObserv
     public synchronized void setAllCells(int[][] newBoard) {
         for (int i = 0; i < newBoard.length; i++) {
             for (int j = 0; j < newBoard[i].length; j++) {
-                int value = newBoard[i][j];
-                if (value != EMPTY_CELL.getValue()) {
-                    sudokuGameButtons[i][j].setValue(value);
-                } else {
-                    sudokuGameButtons[i][j].undo();
-                }
+                undoCell(i,j);
+                setCell(i,j, newBoard[i][j]);
             }
         }
     }

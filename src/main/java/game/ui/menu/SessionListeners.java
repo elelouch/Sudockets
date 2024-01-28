@@ -13,9 +13,8 @@ public class SessionListeners implements ListenersFactory{
     SessionListeners(SudokuGameUI sudokuGameUI) {
         opener = e -> {
             JButton button = (JButton) e.getSource();
-            button.setText("Waiting for connection");
             SudokuServer.initializeServer(sudokuGameUI);
-            button.setText("Close server!");
+            button.setText("Server started, click again to close.");
             ListenersFactory.removeButtonListeners(button);
             button.addActionListener(closer);
         };
@@ -30,12 +29,7 @@ public class SessionListeners implements ListenersFactory{
     }
 
     @Override
-    public ActionListener createCloseListener() {
-        return closer;
-    }
-
-    @Override
-    public ActionListener createOpenListener() {
+    public ActionListener createListener() {
         return opener;
     }
 

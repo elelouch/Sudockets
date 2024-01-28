@@ -5,9 +5,7 @@ import java.awt.event.ActionListener;
 
 public interface ListenersFactory {
 
-    ActionListener createCloseListener();
-
-    ActionListener createOpenListener();
+    ActionListener createListener();
 
     static void removeButtonListeners(JButton button) {
         for (ActionListener listener : button.getActionListeners()) {

@@ -20,5 +20,5 @@ tasks.test {
 }
 
 application {
-    mainClass = "game.ui.Main"
+    mainClass = "game.ui.MainUI"
 }

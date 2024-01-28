@@ -8,8 +8,9 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static game.SudokuSettings.SERVER_PORT;
+
 public class SudokuServer {
-    private static final int PORT = 31145;
     private static final int MAX_CLIENTS = 5;
     private static Thread serverThread = null;
 
@@ -21,19 +22,19 @@ public class SudokuServer {
         // then we need 2 thread, one for the client and another for its updater
         // thus the * 2 to clients
         serverThread = new Thread(() -> {
-            try (ServerSocket server = new ServerSocket(PORT)) {
+            try (ServerSocket server = new ServerSocket(SERVER_PORT.getValue())) {
                 ExecutorService threadPool = Executors.newFixedThreadPool(MAX_CLIENTS * 2);
                 while (!Thread.currentThread().isInterrupted()) {
-                    try (Socket request = server.accept()){
-                        threadPool.submit(new SudokuClientRequest(request, newBoard, threadPool));
-                    } catch (IOException e) {
-                        System.err.println("Client couldn't connect listening again");
-                    }
+                    Socket request = server.accept();
+                    threadPool.submit(new SudokuClientRequest(request, newBoard, threadPool));
                 }
                 threadPool.shutdownNow();
             } catch (IOException e) {
-                System.err.println("Couldn't create server");
-                e.printStackTrace();
+                System.err.println("Couldn't create server (Might be on 2min timeout, another " +
+                        "server is up) or there " +
+                        "was an error on the client side");
+            } finally {
+                serverThread = null;
             }
         });
         serverThread.start();

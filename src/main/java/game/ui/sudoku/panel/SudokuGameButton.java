@@ -27,7 +27,7 @@ public class SudokuGameButton extends JButton implements SudokuCell {
 
     @Override
     public void setValue(int val) {
-        if (!isEmpty() && 1 <= val && val <= 9) {
+        if (isEmpty() && 1 <= val && val <= 9) {
             removeAll();
             value = val;
             setText(val + "");

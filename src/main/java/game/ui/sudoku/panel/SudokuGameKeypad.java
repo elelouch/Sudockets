@@ -8,17 +8,16 @@ import java.awt.event.ActionListener;
 public class SudokuGameKeypad extends JPanel {
     private static final int SIZE = 9;
     private static final int BORDER_WIDTH = 4;
+    private final static Border NOTES_OFF = BorderFactory.createLineBorder(Color.red, BORDER_WIDTH);
+    private final static Border NOTES_ON = BorderFactory.createLineBorder(Color.green, BORDER_WIDTH);
 
     private SudokuGameUI sudokuGame;
     private boolean notesMode;
-    private final static Border NOTES_OFF = BorderFactory.createLineBorder(Color.red, BORDER_WIDTH);
-    private final static Border NOTES_ON = BorderFactory.createLineBorder(Color.green, BORDER_WIDTH);
     private final JButton notesButton;
-    private final JButton undoButton;
 
     public SudokuGameKeypad() {
         setLayout(new FlowLayout());
-        undoButton = new JButton("Undo");
+        JButton undoButton= new JButton("Undo");
         undoButton.addActionListener(e -> sudokuGame.undoCell());
         add(undoButton);
         notesButton = new JButton("Notes");
