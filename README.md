@@ -10,7 +10,7 @@ Multiplayer Sudoku Game.
     - Observer
     - Singleton
     - AbstractFactory
-- Has its own protocol for parsing received things.
+- Has its own protocol for parsing received byte streams.
 
 ### Known problems
 - The solver has to check for uniqueness, since the early stopping  
@@ -18,4 +18,4 @@ variant is not implemented (get just one solution), it may lead the app
 into a costly operation.
 - The server can't open and close quickly, this is because 
 the Maximum Segment Lifetime(MSL) which is a timeout of 2mins to get
-the socket up again. This leads to a "address already in use bind".
+the socket up again. This leads to an "address already in use bind" exception.
