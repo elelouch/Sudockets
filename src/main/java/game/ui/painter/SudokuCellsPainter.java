@@ -12,7 +12,7 @@ public class SudokuCellsPainter implements CellsPainter {
     private static final int MAX_COLORED_CELLS = 21;
     private final ArrayDeque<SudokuGameButton> paintedCells = new ArrayDeque<>(MAX_COLORED_CELLS);
     private SudokuGameButton selectedCell;
-    private SudokuGameButton[][] cells;
+    private final SudokuGameButton[][] cells;
 
     public SudokuCellsPainter(SudokuGameButton[][] cells) {
         this.cells = cells;

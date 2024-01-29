@@ -87,7 +87,11 @@ public class SudokuGameUI extends JPanel implements SudokuGame, SudokuGameObserv
     public synchronized void setAllCells(int[][] newBoard) {
         for (int i = 0; i < newBoard.length; i++) {
             for (int j = 0; j < newBoard[i].length; j++) {
-                undoCell(i,j);
+                // The undo is done this way since it doesn't check
+                // if the cell is not removable (is part of the solution)
+                sudokuGameButtons[i][j].undo();
+                // this setCell is used since it colors the board with red if its
+                // wrong
                 setCell(i,j, newBoard[i][j]);
             }
         }
