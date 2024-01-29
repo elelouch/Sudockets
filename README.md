@@ -5,7 +5,7 @@ Multiplayer Sudoku Game.
 - Quick sudoku solver and generator.
 - Multiple players can connect to the server, it's modifiable (5 max.)
     - Feature implemented with TCP sockets and multithreading
-- Simple and understandable UI made in Swing (
+- Simple and understandable UI made in Swing (no designers were utilized).
 - Design patterns implemented, such as :
     - Observer
     - Singleton
