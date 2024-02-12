@@ -1,21 +1,25 @@
 package game.ui.sudoku.panel;
 
+import static game.SudokuSettings.BOARD_WIDTH;
+import static game.SudokuSettings.BOX_WIDTH;
+
+import java.awt.Color;
+import java.awt.GridLayout;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.BorderFactory;
+import javax.swing.JPanel;
+import javax.swing.border.Border;
+import javax.swing.border.LineBorder;
+
 import game.ui.painter.SudokuCellsPainter;
 import game.ui.sudoku.exceptions.UnsolvableSudokuException;
 import game.ui.sudoku.game.SudokuGame;
 import game.ui.sudoku.game.SudokuGameObserver;
 import game.utils.SudokuSolver;
 
-import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.border.LineBorder;
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
-
-import static game.SudokuSettings.*;
-
-public class SudokuGameUI extends JPanel implements SudokuGame, SudokuGameObserver {
+public class SudokuGameUI extends JPanel implements SudokuGameObserver {
     private static final GridLayout SUDOKU_LAYOUT = new GridLayout(BOX_WIDTH.getValue(),
             BOX_WIDTH.getValue());
     private static final int BORDER_PIXELS = 1;
@@ -87,11 +91,7 @@ public class SudokuGameUI extends JPanel implements SudokuGame, SudokuGameObserv
     public synchronized void setAllCells(int[][] newBoard) {
         for (int i = 0; i < newBoard.length; i++) {
             for (int j = 0; j < newBoard[i].length; j++) {
-                // The undo is done this way since it doesn't check
-                // if the cell is not removable (is part of the solution)
-                sudokuGameButtons[i][j].undo();
-                // this setCell is used since it colors the board with red if its
-                // wrong
+            	undoCell(i,j);
                 setCell(i,j, newBoard[i][j]);
             }
         }
@@ -110,15 +110,20 @@ public class SudokuGameUI extends JPanel implements SudokuGame, SudokuGameObserv
     @Override
     public synchronized void undoCell(int i, int j) {
         SudokuGameButton button = sudokuGameButtons[i][j];
-        int valueSolution = solution[i][j];
-        if (button.isEmpty() || button.getValue() == valueSolution) {
+        if (button.isEmpty() || button.getValue() == solution[i][j]) {
             return;
         }
         button.undo();
-
-        for (SudokuGame spectator : spectators)
-            spectator.undoCell(i, j);
+        notifyUndo(i,j);
     }
+
+    @Override
+    public void notifyUndo(int i, int j) {
+    	for(SudokuGame spectator : spectators) {
+    		spectator.undoCell(i, j);
+    	}
+    }
+    
 
     public void undoCell() {
         undoCell(selectedCell.getRow(), selectedCell.getCol());
@@ -128,22 +133,28 @@ public class SudokuGameUI extends JPanel implements SudokuGame, SudokuGameObserv
     public synchronized void setCell(int i, int j, int number) {
         SudokuGameButton buttonToModify = sudokuGameButtons[i][j];
         int solutionValue = solution[i][j];
-        if (buttonToModify.getValue() == number) {
+
+        if (buttonToModify.getValue() == number || buttonToModify.getValue() == solutionValue) {
             return;
         }
 
         buttonToModify.setValue(number);
-        buttonToModify.setForeground(Color.black);
-
-        if (solutionValue != buttonToModify.getValue()) {
-            buttonToModify.setForeground(Color.red);
+		buttonToModify.setForeground(Color.black);
+        if(number != solutionValue) {
+			buttonToModify.setForeground(Color.red);
         }
 
+        notifyUpdate(i,j,number);
+    }
+    
+    @Override
+    public void notifyUpdate(int i, int j, int number) {
         for (SudokuGame spectator : spectators)
             spectator.setCell(i, j, number);
     }
 
-    public void fillCell(int number) {
+
+    public void setCell(int number) {
         setCell(selectedCell.getRow(), selectedCell.getCol(), number);
     }
 
@@ -175,8 +186,9 @@ public class SudokuGameUI extends JPanel implements SudokuGame, SudokuGameObserv
 
     @Override
     public void notifyFullUpdate() {
+    	int[][] board = getBoardCopy();
         for (SudokuGame spectator : spectators) {
-            spectator.setAllCells(getBoardCopy());
+            spectator.setAllCells(board);
         }
     }
 
@@ -186,5 +198,4 @@ public class SudokuGameUI extends JPanel implements SudokuGame, SudokuGameObserv
             spectator.setSolution(solution);
         }
     }
-
 }

@@ -54,7 +54,7 @@ public class SudokuGameKeypad extends JPanel {
             if (notesMode) {
                 sudokuGame.addNote(valueSelected);
             } else {
-                sudokuGame.fillCell(valueSelected);
+                sudokuGame.setCell(valueSelected);
             }
         };
 

@@ -27,6 +27,7 @@ public class SudokuMainMenu extends JPanel {
         generateNewBoardButton.addActionListener(e -> {
             int[][] board = SudokuGenerator.generateUniqueSudoku();
             newBoard.setSolution(board);
+            newBoard.notifySolution();
             newBoard.setAllCells(board);
         });
 

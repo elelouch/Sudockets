@@ -14,7 +14,7 @@ public class SessionListeners implements ListenersFactory{
         opener = e -> {
             JButton button = (JButton) e.getSource();
             SudokuServer.initializeServer(sudokuGameUI);
-            button.setText("Server started, click again to close.");
+            button.setText("Server started, click again to close. (Must wait 2min before reopenning)");
             ListenersFactory.removeButtonListeners(button);
             button.addActionListener(closer);
         };

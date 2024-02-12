@@ -18,7 +18,7 @@ public class ConnectionListeners implements ListenersFactory {
             JButton button = (JButton) e.getSource();
             if(ipPattern.matcher(address).matches()) {
                 SudokuClient.initializeClient(sudokuGameUI,address);
-                button.setText("Stop connection (Must wait 2min after stopping).");
+                button.setText("Stop connection.");
                 ListenersFactory.removeButtonListeners(button);
                 button.addActionListener(closer);
                 return;
