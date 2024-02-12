@@ -24,13 +24,16 @@ public class SudokuMainMenu extends JPanel {
         connectToSessionButton.addActionListener(connectionListeners.createListener());
 
         JButton generateNewBoardButton = new JButton("Generate new sudoku");
-        generateNewBoardButton.addActionListener(e -> newBoard.setAllCells(SudokuGenerator.generateUniqueSudoku()));
+        generateNewBoardButton.addActionListener(e -> {
+            int[][] board = SudokuGenerator.generateUniqueSudoku();
+            newBoard.setSolution(board);
+            newBoard.setAllCells(board);
+        });
 
         add(generateNewBoardButton);
         add(ipAddressInput);
         add(connectToSessionButton);
         add(startSessionButton);
     }
-
 
 }

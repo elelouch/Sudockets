@@ -22,3 +22,7 @@ tasks.test {
 application {
     mainClass = "game.ui.MainUI"
 }
+
+tasks.jar {
+    manifest.attributes["Main-Class"] = application.mainClass
+}
